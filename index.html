@@ -153,14 +153,14 @@ h1{font-family:var(--f-display);font-weight:400;font-size:clamp(48px,6.4vw,118px
 @keyframes bump{40%{transform:scale(1.5)}}
 .btn:disabled{color:var(--ink);cursor:default;opacity:.7}
 .btn.solid{background:var(--ink);color:var(--paper)}
-.sign{position:absolute;right:clamp(24px,3vw,64px);bottom:16px;z-index:3;font:700 12px var(--f-body);
+.sign{position:absolute;right:clamp(24px,3vw,64px);bottom:16px;z-index:3;font:700 14.4px var(--f-body);
   transition:color .3s ease .5s,text-shadow .3s ease .5s}   /* تأخیر: رنگ وقتی عوض می‌شود که پنل سبز به آن رسیده/ازش رفته */
 /* روی زمینه‌ی تیره (نگارخانه) سفید با سایه‌ی سفیدِ کمی دورتر از متن */
 body[data-state="gallery"] .sign{color:#fff;text-shadow:3px 3px 2px rgba(255,255,255,.4)}
 /* امضای تصویری: روی زمینه‌ی روشن همان رنگ خودش؛ روی زمینه‌ی تیره (نگارخانه، و پایین صفحه در گوشی) سفید می‌شود */
-.sign img{display:block;height:clamp(33.6px,3.12vw,52.8px);width:auto;max-width:50.4vw;transition:filter .3s ease .5s}
+.sign img{display:block;height:clamp(140px,13vw,220px);width:auto;max-width:70vw;transition:filter .3s ease .5s}
 body[data-state="gallery"] .sign img{filter:brightness(0) invert(1)}
-@media (max-width:760px){.sign img{height:26px;filter:brightness(0) invert(1)}}
+@media (max-width:760px){.sign img{height:100px;filter:brightness(0) invert(1)}}
 
 /* پنل مورب سمت چپ (آینه‌ی طرح مرجع برای RTL) */
 .stage{
@@ -353,7 +353,7 @@ body[data-state="gallery"] .gal .hud.g{transition-delay:.3s,.3s}
   .copy p{max-width:none;font-size:13px;line-height:1.8;margin-top:12px}
   .chip{margin-top:10px}
   .actions{margin-top:16px}
-  .sign{right:12px;bottom:4px;font-size:9.5px;color:#fff;text-shadow:2px 2px 2px rgba(255,255,255,.4)}
+  .sign{right:12px;bottom:4px;font-size:11.4px;color:#fff;text-shadow:2px 2px 2px rgba(255,255,255,.4)}
   /* پنل: مدار تمام جای باقی‌مانده را می‌گیرد؛ HUD (LEVEL 01 + وضعیت مدار) بالای پنل وسط‌چین می‌آید و متن راهنما زیرش */
   .stage{position:relative;flex:1;min-height:0;width:calc(100% + 48px);margin:14px -24px -20px;padding:0}
   .panel-s{flex-direction:column;justify-content:flex-start;gap:6px;padding:44px 10px 12px}
