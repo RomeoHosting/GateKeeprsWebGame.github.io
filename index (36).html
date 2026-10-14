@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
+<title>Gatekeeper | بازی مدار منطقی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('intro');setTimeout(function(){document.documentElement.classList.remove('intro')},2500)</script>
+<style>
+:root{
+  color-scheme:only light;
+  --dot:rgba(185,185,190,.4);  /* خیلی کم‌رنگ ولی قابل‌دیدن؛ هرچه عدد کمتر، شفاف‌تر (۱ = کامل، ۰.۳ = تقریباً محو) */ --ink:#000; --paper:#fff;
+  --red:#c8262c; --red-dark:#7d1218;
+  --panel:#1d2a2b; --wire:#9db3b4; --lit:#ff9d2e;
+  --tilt:30deg;                      /* چرخش متن قرمز Gate Keepers */
+  --f-display:"Archivo Black","Arial Black",Impact,sans-serif;
+  --f-body:"Vazirmatn",Tahoma,Arial,sans-serif;
+  --f-script:"Kaushan Script","Brush Script MT",cursive;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background-color:#fff}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;overscroll-behavior-y:none}
+/* نوار اسکرول مرورگر پنهان؛ اسکرول (چرخ موس، لمس، کیبورد) همچنان کار می‌کند و نقطه‌ها جای آن را می‌گیرند */
+html,body{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0;height:0}
+body{font-family:var(--f-body);color:var(--ink)}
+.scene{
+  position:fixed;top:0;right:0;bottom:0;left:0;overflow:hidden;padding:64px clamp(24px,3vw,64px) 20px;background-color:#fff;
+  background-image:radial-gradient(var(--dot) 1px,transparent 1.2px);background-size:6px 6px;
+}
+/* ارتفاع هر ایستگاه = بزرگ‌ترین ارتفاع ممکن‌ی صفحه (lvh: وقتی نوار آدرس موبایل جمع شده).
+   با svh، وقتی نوار آدرس موقع اسکرول جمع می‌شد، ارتفاع دیده‌شده بیشتر می‌شد و جای ایستگاه «مراحل»
+   از آخر صفحه بیرون می‌افتاد؛ snap اجباری هم صفحه را به بالا برمی‌گرداند. 100vh فقط پشتیبان مرورگرهای قدیمی است */
+.snap{height:100vh;height:100lvh;scroll-snap-align:start;scroll-snap-stop:always}
+.swap{display:grid;justify-items:start}
+.swap>*{grid-area:1/1}
+.panel-s{position:absolute;top:0;right:0;bottom:0;left:0;direction:ltr;display:flex;align-items:center;justify-content:center;padding-right:26%}
+
+/* گذار بین خانه (h) و مراحل (s): اول محو می‌شوند، بعد آن‌های دیگر از کنار با فید و شتابِ ریز می‌آیند.
+   r = از راست، l = از چپ. عناصر مشترک (تیتر، منو، نقطه‌ها، پنل، GATES...) دست نمی‌خورند.
+   تأخیر و مدت‌زمان کوتاه شده تا تعویض صفحه حس کندی ندهد (۰.۱۵s تأخیر + ۰.۲۵~۰.۳s حرکت) */
+.h,.s,.g{--acc:cubic-bezier(.55,0,.25,1)}
+.r{--dx:70px}.l{--dx:-90px}
+body[data-state="home"] .h,body[data-state="steps"] .s,body[data-state="gallery"] .g{
+  opacity:1;transform:none;pointer-events:auto;
+  transition:opacity .25s var(--acc) .15s,transform .3s var(--acc) .15s;
+}
+body[data-state="steps"] .h,body[data-state="gallery"] .h,body[data-state="menu"] .h,body[data-state="home"] .s,body[data-state="gallery"] .s,body[data-state="menu"] .s,body[data-state="home"] .g,body[data-state="steps"] .g,body[data-state="menu"] .g{
+  opacity:0;transform:translateX(var(--dx));pointer-events:none;
+  transition:opacity .2s ease-in,transform 0s linear .2s;
+}
+/* آرت (art.png) در «فهرست» هم می‌ماند، همان آرتِ خانه؛ با رفتن به خانه هیچ جابه‌جایی نمی‌بیند و از مراحل/نگارخانه که می‌آید با همان گذار وارد می‌شود */
+body[data-state="menu"] .art.h{opacity:1;transform:none;pointer-events:auto;transition:opacity .25s var(--acc) .15s,transform .3s var(--acc) .15s}
+/* ترتیب ورود در خانه: اول آرت، بعد کپسول «دنبال‌کنندگان». کپسول کمی بعد از آرت شروع می‌شود
+   (تأخیر از ۰.۸۵ به ۰.۴۵ ثانیه کم شد تا ورود صفحه کند حس نشود) */
+body[data-state="home"] nav .follow.h{transition-delay:.45s,.45s}
+/* لحظه‌ی باز شدن صفحه: تا آرت بارگذاری نشده هر دو در حالت «بیرون» نگه داشته می‌شوند، بعد با همان گذار می‌آیند تو */
+html.intro body[data-state="home"] .art.h,
+html.intro body[data-state="home"] nav .follow.h{opacity:0;transform:translateX(var(--dx));transition:none}
+.en{direction:ltr;unicode-bidi:isolate}
+
+.watermark{
+  position:absolute;left:0;right:0;top:19vh;z-index:0;direction:ltr;overflow:hidden;padding-bottom:14px;
+  filter:drop-shadow(4px 6px 3px rgba(0,0,0,.3));
+  font-family:var(--f-display);font-size:min(34vw,380px);line-height:1;letter-spacing:-.02em;
+  color:transparent;-webkit-text-stroke:2px #c0c0c5;white-space:nowrap;pointer-events:none;user-select:none;
+}
+/* دو نیمه‌ی یکسان؛ تا -۵۰٪ می‌رود و بی‌وقفه از اول تکرار می‌شود */
+.watermark .track{display:flex;width:max-content;animation:metro 44s linear infinite;will-change:transform}
+.watermark .track span{padding-right:.35em}
+@keyframes metro{to{transform:translateX(-50%)}}
+/* برگشت از نگارخانه: GATES با تأخیر و فید نرم برمی‌گردد (هم‌زمان با جمع‌شدن پنل تیره)؛ رفتن به نگارخانه بدون تأخیر محو می‌شود */
+.watermark{transition:opacity 1.4s ease .3s}
+body[data-state="gallery"] .watermark{opacity:0;transition:opacity .4s ease}   /* در نگارخانه انیمیشن ندارد؛ محو می‌شود */
+/* نسخه‌ی داخل پنل سبز: همان GATES، هم‌زمان و هم‌جا، ولی با ترکیب difference (عملاً subtract)
+   تا روی سبز به‌شکل خطوط تیره‌ترِ بریده‌شده دیده شود. چون داخل .stage-bg است، فقط داخل پنل مورب دیده می‌شود */
+.watermark.wm-sub{
+  right:auto;width:100vw;filter:none;
+  -webkit-text-stroke:3px rgb(28,40,40);
+  mix-blend-mode:difference;
+}
+
+nav{position:fixed;top:20px;left:0;right:0;padding:0 clamp(24px,3vw,64px);z-index:20;display:flex;align-items:center;gap:clamp(8px,1.6vw,20px);row-gap:10px;flex-wrap:wrap;font-weight:700;font-size:clamp(14px,1vw,17px)}
+/* دکمه‌های منو به سبک متریال: خطِ نازک دودی به‌جای دور خط سیاه، سایه‌ی ارتفاع دوطبقی،
+   و «لایه‌ی حالت» (state layer) که با هاور/فشار ظاهر می‌شود. رنگ پس‌زمینه همچنان با همان فید .۴۵ ثانیه عوض می‌شود */
+nav a{
+  position:relative;
+  color:var(--ink);text-decoration:none;padding:.4em 1.25em;border-radius:99px;background:#fff;
+  border:1.5px solid rgba(29,42,43,.18);
+  box-shadow:0 1px 2px rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.1),inset 0 1px 0 #fff;
+  transition:background-color .45s ease,color .45s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease;
+}
+/* لایه‌ی حالت متریال: روکش هم‌رنگِ متن که با هاور کم‌رنگ و با فشار پررنگ می‌شود؛ روی قرص قرمز (متن سفید) خودش سفید می‌شود */
+nav a::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:inherit;background:currentColor;opacity:0;pointer-events:none;transition:opacity .18s ease}
+nav a:hover{border-color:rgba(29,42,43,.42);transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.14),inset 0 1px 0 #fff}
+nav a:active{transform:translateY(0) scale(.97);box-shadow:0 1px 2px rgba(0,0,0,.16)}
+nav a:hover::before{opacity:.07}
+nav a:active::before{opacity:.15}
+/* صفحه‌ی فعال: به‌جای سیاه، قرمز برند با هاله‌ی سایه‌ی هم‌رنگ و هایلایت داخلی */
+nav a[aria-current]{background:var(--red);border-color:transparent;color:#fff;box-shadow:0 2px 5px rgba(200,38,44,.4),0 8px 20px rgba(200,38,44,.26),inset 0 1px 0 rgba(255,255,255,.35)}
+nav a[aria-current]:hover{box-shadow:0 3px 7px rgba(200,38,44,.44),0 10px 24px rgba(200,38,44,.32),inset 0 1px 0 rgba(255,255,255,.35)}
+nav a:focus-visible,.btn:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+nav .follow{margin-inline-start:auto;display:flex;align-items:center;gap:8px;padding-inline-end:6px;
+  background:var(--comp,#fff);color:var(--comp-ink,var(--ink))}   /* رنگ مکمل آرت؛ تا آرت نیاید یا خوانده نشود، همان سفید قبلی */
+nav .follow b{display:inline-block;min-width:1.2em;text-align:center}
+
+.copy,.sign{text-shadow:0 2px 3px rgba(0,0,0,.28)}
+.copy{position:relative;z-index:3;width:min(clamp(430px,34vw,660px),46%);margin-top:clamp(40px,12vh,110px);margin-inline-end:clamp(34px,4.5vw,84px)}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(48px,6.4vw,118px);line-height:.95;direction:ltr;text-align:right}
+.copy p{margin-top:22px;font-family:"Vazirmatn","Vazir",Tahoma,sans-serif;font-weight:700;font-style:italic;font-size:clamp(15px,1.15vw,20px);line-height:2.05;max-width:36ch}
+.chip{display:flex;align-items:center;gap:10px;margin-top:26px;font-size:clamp(13px,.95vw,16px);font-weight:700}
+.chip .ab{width:70px;height:26px;background:var(--panel);display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:12px;font-weight:700;direction:ltr;animation:abBox 4.8s ease-in-out infinite}
+.chip .ab b,.chip .ab i{font-style:normal;color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+.chip .ab i{color:#7d6446}
+.chip .ab .la{animation:lightA 4.8s ease-in-out infinite}
+.chip .ab .lb{animation:lightB 4.8s ease-in-out infinite}
+/* راهنما: اول A، بعد B، بعد هر دو با هم (یعنی هر دو را بزن تا مدار روشن شود) */
+@keyframes lightA{
+  0%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+  8%,24%{color:#ffc26b;text-shadow:0 0 5px rgba(255,170,60,.9),0 0 12px rgba(255,157,46,.6)}
+  32%,68%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+  76%,90%{color:#ffc26b;text-shadow:0 0 5px rgba(255,170,60,.9),0 0 12px rgba(255,157,46,.6)}
+  98%,100%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+}
+@keyframes lightB{
+  0%,32%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+  40%,56%{color:#ffc26b;text-shadow:0 0 5px rgba(255,170,60,.9),0 0 12px rgba(255,157,46,.6)}
+  64%,68%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+  76%,90%{color:#ffc26b;text-shadow:0 0 5px rgba(255,170,60,.9),0 0 12px rgba(255,157,46,.6)}
+  98%,100%{color:#a8651f;text-shadow:0 0 0 rgba(255,170,60,0),0 0 0 rgba(255,170,60,0)}
+}
+@keyframes abBox{
+  0%,68%{box-shadow:0 0 0 rgba(255,157,46,0)}
+  76%,90%{box-shadow:0 0 12px rgba(255,157,46,.45)}
+  98%,100%{box-shadow:0 0 0 rgba(255,157,46,0)}
+}
+
+.actions{display:flex;gap:12px;margin-top:46px}
+.btn{font:700 clamp(12px,.9vw,15px) var(--f-body);padding:.45em 1.5em;border-radius:99px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn{box-shadow:0 4px 7px rgba(0,0,0,.28);text-shadow:none}
+.btn.flash{animation:flash 1.1s ease-out}
+@keyframes flash{
+  0%{background:#fff;color:#000;transform:scale(1)}
+  12%{background:#000;color:#fff;transform:scale(.94)}
+  40%{background:#000;color:#fff;transform:scale(1)}
+  100%{background:#fff;color:#000}
+}
+#count.bump{animation:bump .4s ease-out}
+@keyframes bump{40%{transform:scale(1.5)}}
+.btn:disabled{color:var(--ink);cursor:default;opacity:.7}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.sign{position:absolute;right:clamp(24px,3vw,64px);bottom:16px;z-index:3;font:700 12px var(--f-body);
+  transition:color .3s ease .5s,text-shadow .3s ease .5s}   /* تأخیر: رنگ وقتی عوض می‌شود که پنل سبز به آن رسیده/ازش رفته */
+/* روی زمینه‌ی تیره (نگارخانه) سفید با سایه‌ی سفیدِ کمی دورتر از متن */
+body[data-state="gallery"] .sign{color:#fff;text-shadow:3px 3px 2px rgba(255,255,255,.4)}
+/* امضای تصویری: روی زمینه‌ی روشن همان رنگ خودش؛ روی زمینه‌ی تیره (نگارخانه، و پایین صفحه در گوشی) سفید می‌شود */
+.sign img{display:block;height:clamp(28px,2.6vw,44px);width:auto;max-width:42vw;transition:filter .3s ease .5s}
+body[data-state="gallery"] .sign img{filter:brightness(0) invert(1)}
+@media (max-width:760px){.sign img{height:26px;filter:brightness(0) invert(1)}}
+
+/* پنل مورب سمت چپ (آینه‌ی طرح مرجع برای RTL) */
+.stage{
+  position:absolute;z-index:1;top:0;bottom:0;left:0;width:70%;direction:ltr;
+  display:flex;align-items:center;justify-content:center;padding-right:26%;
+}
+/* سایه روی والد، برش مورب روی فرزند؛ وگرنه clip-path سایه را هم می‌برد */
+.stage-shadow{position:absolute;top:0;right:0;bottom:0;left:0;z-index:-1;pointer-events:none}
+.stage-bg{
+  position:absolute;top:0;right:0;bottom:0;left:0;
+  background:radial-gradient(rgba(0,0,0,.45) 1px,transparent 1.3px) 0 0/6px 6px,
+             radial-gradient(circle at 30% 40%,#2f4546,#1d2a2b 70%);
+  clip-path:polygon(0 0,48% 0,100% 100%,0 100%);
+}
+/* نقطه‌های خاکستری کنار لبه‌ی مورب که کم‌کم به نقطه‌های تیره می‌رسند */
+.stage-bg::before{
+  content:"";position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;
+  background:radial-gradient(rgba(200,214,214,.4) 1px,transparent 1.3px) 0 0/6px 6px;
+  -webkit-mask-image:linear-gradient(to left,#000 10%,transparent 80%);
+          mask-image:linear-gradient(to left,#000 10%,transparent 80%);
+}
+/* جای آرت: فایل art.png کنار index.html بگذار. داخل .stage-bg است پس لبه‌ی مورب سفید آن را می‌برد.
+   تا فایل نباشد، جا خالی می‌ماند. جای تصویر را با object-position عوض کن */
+.art{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
+/* سایه‌ی داخلی: شکلِ «بقیه‌ی صفحه» بیرون از برش است و فقط سایه‌اش روی پنل می‌افتد */
+.edge-shadow{position:absolute;top:0;right:0;bottom:0;left:0;filter:drop-shadow(-9px 3px 9px rgba(0,0,0,.55))}
+.edge-shadow i{position:absolute;top:0;right:0;bottom:0;left:0;background:#000;clip-path:polygon(48% 0,100% 0,100% 100%)}
+.stage svg{width:min(60%,560px);height:auto;overflow:visible}
+.stage text{font:700 24px var(--f-body);fill:#fff;pointer-events:none}
+.wire{fill:none;stroke:var(--wire);stroke-width:5;stroke-linecap:square;transition:stroke .15s}
+.flow{fill:none;stroke:var(--lit);stroke-width:5;stroke-linecap:butt;stroke-dasharray:1;stroke-dashoffset:1;
+  filter:drop-shadow(0 0 3px rgba(255,157,46,.9));
+  transition:stroke-dashoffset .35s ease-out}
+/* مثل ریختن مایع: آرام شروع می‌شود، شتاب می‌گیرد و می‌رسد */
+.flow.on{stroke-dashoffset:0;transition:stroke-dashoffset .45s cubic-bezier(.5,0,.9,.6)}
+/* ادامه‌ی مایع دورِ بدنه‌ی گیت، بعد از رسیدن سیم ورودی */
+.flow.gate{stroke-linejoin:round}
+.flow.gate.on{transition-delay:.45s;transition-duration:.75s;transition-timing-function:cubic-bezier(.3,.1,.7,1)}
+.flow.gate.edge.on{transition-duration:.4s}                       /* لبه‌ی چپ گیت کوتاه‌تر است */
+.flow.out.on{transition-delay:1.2s;transition-duration:.35s}   /* بعد از رسیدن مایع A و B به خروجی */
+.led.on{transition:all .35s ease-out 1.5s}                      /* LED وقتی مایع رسید روشن می‌شود */
+.gate{fill:#122021;stroke:var(--wire);stroke-width:5}
+/* کلیدهای A و B: با کلیک هیچ خط/حلقه/هایلایتی دورشان نمی‌آید (فوکوس در JS برداشته می‌شود) */
+.sw{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.sw rect{fill:#122021;stroke:var(--wire);stroke-width:4}
+.sw.on rect{fill:var(--lit);stroke:var(--lit)}
+/* نشانه‌ی فوکوس فقط برای کیبورد: کلاس kbd با اولین Tab به body می‌آید و با هر کلیک موس برداشته می‌شود */
+body.kbd .sw:focus-visible rect{stroke:#fff}
+/* حالت «مارو فشار بده»: دور هر کلید خاموش یک لکه‌ی آب‌مانند موج می‌زند و حلقه‌ای از آن بیرون می‌پرد.
+   با روشن شدن کلید نرم محو می‌شود و با خاموش کردنش دوباره برمی‌گردد. شکل لکه با SMIL (animate روی d) تغییر می‌کند */
+.goo{opacity:1;transition:opacity .4s ease-out;pointer-events:none}
+.sw.on .goo{opacity:0;transition:opacity .25s ease-in}
+.goo-blob{fill:url(#waterG);stroke:rgba(176,228,242,.9);stroke-width:2.5;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(150,215,235,.65))}
+.goo-ring{fill:none;stroke:rgba(176,228,242,.75);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:gooRing 2.8s ease-out infinite}
+.goo-ring.b{animation-delay:-1.4s}
+@keyframes gooRing{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.65,1.8);opacity:0}}
+.led{fill:#3a2a18;stroke:var(--wire);stroke-width:4;transition:all .15s}
+.led.on{fill:var(--lit);stroke:#ffc06b;filter:drop-shadow(0 0 3px #ffd9a0) drop-shadow(0 0 12px var(--lit)) drop-shadow(0 0 26px rgba(255,157,46,.55))}
+/* هاله‌ی نور دور LED (پشتش) و هسته‌ی داغ وسطش (روی آن)؛ هر دو هم‌زمان با LED، بعد از رسیدن مایع، نرم ظاهر می‌شوند */
+.led-halo,.led-core{opacity:0;pointer-events:none;transition:opacity .25s ease-out}
+.led-halo{fill:url(#ledHalo)}
+.led-core{fill:url(#ledCore)}
+.led-halo.on,.led-core.on{opacity:1;transition:opacity .5s ease-out 1.5s}
+.hint{position:absolute;z-index:3;left:clamp(24px,3vw,64px);top:clamp(106px,7.6vw,128px);color:#fff;font-size:clamp(14px,1.1vw,18px);font-weight:700;font-style:italic;animation:glow 3.6s ease-in-out infinite alternate;max-width:22ch;direction:rtl;text-align:left;line-height:1.7}
+
+/* تأخیر روشن شدن (۱.۵ ثانیه تا رسیدن مایع) فقط در JS (setTimeout) است، تا دوبار جمع نشود */
+/* نوار بالای پنل: شماره‌ی مرحله + وضعیت ماشین که با LED هم‌زمان بیدار می‌شود */
+.hud{position:absolute;z-index:3;left:clamp(24px,3vw,64px);top:clamp(66px,4.8vw,82px);direction:ltr;display:flex;align-items:center;gap:12px;pointer-events:none}
+.hud-lvl{font:400 clamp(11px,.85vw,13px)/1 var(--f-display);letter-spacing:.14em;color:#eef5f5;padding:.6em 1.1em;border:2px solid rgba(238,245,245,.85);border-radius:99px}
+.hud-st{display:flex;align-items:center;gap:7px;direction:rtl;font:700 clamp(11px,.85vw,13px)/1 var(--f-body);color:rgba(238,245,245,.7);transition:color .35s ease-out}
+.hud-dot{width:10px;height:10px;border-radius:50%;background:#3a2a18;border:2px solid var(--wire);transition:all .15s}
+.hud-st.on{color:#fff}
+.hud-st.on .hud-dot{background:var(--lit);border-color:#ffc06b;box-shadow:0 0 6px var(--lit),0 0 16px rgba(255,157,46,.7);transition:all .35s ease-out}
+@keyframes glow{
+  /* سفید خالص در مرکز، به‌سمت بیرون کم‌کم سفید-آبیِ خنک و محو؛ چهار لایه‌ی هم‌تعداد تا نرم تپش کند */
+  from{text-shadow:0 0 2px rgba(255,255,255,.45),0 0 8px rgba(255,255,255,.28),0 0 20px rgba(205,232,255,.18),0 0 42px rgba(170,215,255,.1)}
+  to{text-shadow:0 0 3px rgba(255,255,255,.95),0 0 10px rgba(255,255,255,.65),0 0 26px rgba(215,238,255,.45),0 0 54px rgba(175,218,255,.28)}
+}
+.clan{
+  position:absolute;z-index:3;left:calc(clamp(24px,3vw,64px) + 24px);bottom:calc(1.9em + 24px);text-align:center;direction:ltr;
+  font:400 clamp(26px,4vw,64px)/.95 var(--f-display);
+  /* لایه‌ی بالا: زرد (خاموش = ارتفاعش صفر)، لایه‌ی پایین: قرمز */
+  background:linear-gradient(#fff6b0,#ffd21a 50%,#ffae00) no-repeat center/100% 0%, linear-gradient(#e0343a,var(--red-dark));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  transform:rotate(var(--rot,var(--tilt)));
+  border:0;padding:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+  /* وقتی خاموش است: هاله‌ی قرمز خیلی کمرنگ (دو لایه، هم‌تعداد با حالت روشن تا نرم به زردِ روشن تبدیل شود) */
+  filter:drop-shadow(0 0 5px rgba(224,52,58,.34)) drop-shadow(0 0 14px rgba(200,38,44,.16));
+  transition:background-size .35s ease,filter .35s ease;
+}
+.clan.on{
+  background-size:100% 100%,100% 100%;
+  filter:drop-shadow(0 0 5px rgba(255,214,40,.95)) drop-shadow(0 0 18px rgba(255,170,0,.65));
+}
+.clan.squish{animation:squish .45s ease-out}
+@keyframes squish{
+  0%{transform:rotate(var(--prev,var(--tilt))) scale(1)}
+  35%{transform:rotate(var(--rot,var(--tilt))) scale(.8)}
+  70%{transform:rotate(var(--rot,var(--tilt))) scale(1.07)}
+  100%{transform:rotate(var(--rot,var(--tilt))) scale(1)}
+}
+.clan:focus,.clan:focus-visible{outline:none}
+/* GATE KEEPERS قرمز: در «مراحل» و «نگارخانه» می‌ماند (بین این دو فقط می‌ماند و جابه‌جا نمی‌شود)، در خانه از چپ محو می‌شود */
+.clan-wrap{position:absolute;top:0;right:0;bottom:0;left:0;z-index:3;pointer-events:none}
+.clan{pointer-events:auto}
+body[data-state="steps"] .sg,body[data-state="gallery"] .sg{opacity:1;visibility:visible;transform:none;transition:opacity .25s cubic-bezier(.55,0,.25,1) .15s,transform .3s cubic-bezier(.55,0,.25,1) .15s}
+body[data-state="home"] .sg,body[data-state="menu"] .sg{opacity:0;visibility:hidden;transform:translateX(var(--dx));transition:opacity .2s ease-in,transform 0s linear .2s,visibility 0s linear .2s}
+.dots{position:fixed;z-index:2;right:clamp(8px,1.4vw,24px);top:calc(50% - 30px);transform:translateY(-50%);display:grid;gap:10px}
+/* گوشی: پنل سبز پایین صفحه است و نقطه‌های پایینی داخلش می‌افتند. یک کپی سفید هم‌جای نقطه‌ها (.dots.w) با ماسک مکمل
+   روی اصلی می‌نشیند: بالای لبه‌ی مورب سیاه، داخل سبز سفید، و بینشان گردینت. مرز (--m1/--m2) را JS از جای پنل حساب می‌کند */
+.dots.w{--dk:#fff;display:none}
+@media (max-width:760px){
+  .dots{-webkit-mask-image:linear-gradient(to bottom,#000 var(--m1,99999px),transparent var(--m2,100000px));mask-image:linear-gradient(to bottom,#000 var(--m1,99999px),transparent var(--m2,100000px))}
+  .dots.w{display:grid;-webkit-mask-image:linear-gradient(to bottom,transparent var(--m1,99999px),#000 var(--m2,100000px));mask-image:linear-gradient(to bottom,transparent var(--m1,99999px),#000 var(--m2,100000px))}
+}
+.dots i{width:9px;height:9px;border-radius:50%;border:2px solid var(--dk,var(--ink));background:transparent;transition:border-color .3s}
+body[data-state="gallery"]{--dk:#fff}
+/* نقطه‌ی فعال: یک قرص جدا که با JS (requestAnimationFrame) کشیده می‌شود، نه با ترنزیشن CSS؛
+   پس به تنظیمات «کاهش حرکت» سیستم و تفاوت مرورگرها وابسته نیست. top و height را JS می‌گذارد */
+.dots .ink{position:absolute;left:0;right:0;top:0;height:0;border-radius:99px;background:var(--dk,var(--ink));pointer-events:none;transition:background-color .3s}
+
+/* ===== فهرست: چهار متن زیر تیتر، با خط‌های گردگوشه بینشان =====
+   لیست خارج از جریان است و درست جای پاراگراف (زیر تیتر) می‌نشیند، پس چیدمان خانه/مراحل تغییر نمی‌کند.
+   با ورود، متن‌ها با فید از پایین می‌آیند و هر خط از راست کشیده می‌شود */
+.menu{position:absolute;margin:22px 0 0;padding:0;list-style:none;width:100%;direction:rtl;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
+body[data-state="menu"] .menu{opacity:1;visibility:visible;pointer-events:auto;transition:visibility 0s}
+.menu li{padding-top:.5em;padding-inline-start:10px;font:700 clamp(20px,2.1vw,32px)/1.5 var(--f-body);text-shadow:0 2px 3px rgba(0,0,0,.28)}
+.menu li:not(:last-child)::after{content:"";display:block;height:4px;margin-top:.55em;margin-inline-start:-10px;border-radius:99px;background:var(--ink);transform-origin:right center}
+@keyframes menuIn{from{opacity:0;transform:translateY(18px)}}
+@keyframes lineIn{from{transform:scaleX(0)}}
+body[data-state="menu"] .menu li{animation:menuIn .5s cubic-bezier(.2,.7,.2,1) calc(.2s + var(--i,0)*.1s) backwards}
+body[data-state="menu"] .menu li::after{animation:lineIn .55s cubic-bezier(.55,0,.25,1) calc(.35s + var(--i,0)*.1s) backwards}
+/* دکمه‌های زیر تیتر در فهرست نیستند (جای لیست‌اند) */
+.actions{transition:opacity .25s ease .3s}
+body[data-state="menu"] .actions{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
+
+/* ===== نگارخانه: برد مدار؛ قاب عکس‌ها با سیم به هم وصل‌اند =====
+   لایه‌ی تیره با همان شکل پنل مورب شروع می‌شود و لبه‌ی مورب‌اش تا پر کردن کل صفحه جارو می‌کند */
+.gal{position:absolute;top:0;right:0;bottom:0;left:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:84px 0 20px;direction:ltr;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
+body[data-state="gallery"] .gal{opacity:1;visibility:visible;transition:visibility 0s}
+.gal-in{position:relative;width:min(94vw,calc((100vh - 104px)*16/9),calc((100lvh - 104px)*16/9));aspect-ratio:16/9}
+/* ورود از خانه/مراحل: همان پنل سبز تیره (نه یک لایه‌ی جدید) از کنار گسترش می‌یابد و سفیدی را می‌پوشاند؛
+   بعد قاب‌ها یکی‌یکی با فید از پایین می‌آیند و سیم‌ها پیدا می‌شوند. متن‌های سفید-زمینه محو می‌شوند */
+.stage-shadow{transition:right .7s cubic-bezier(.55,0,.9,.45) .15s,top .7s cubic-bezier(.55,0,.9,.45) .15s}
+.stage-bg{transition:clip-path .7s cubic-bezier(.55,0,.9,.45) .15s}
+.edge-shadow i{transition:clip-path .7s cubic-bezier(.55,0,.9,.45) .15s}
+body[data-state="gallery"] .stage-shadow{right:-42.86%}
+body[data-state="gallery"] .stage-bg{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+body[data-state="gallery"] .edge-shadow i{clip-path:polygon(100% 0,100% 0,100% 100%)}
+/* تیتر سیاه و پنل سبز دیگر با هم قاطی نمی‌شوند: در نگارخانه متن زیر پنل می‌رود (پنل جلوتر از آن است) و همان‌جا که پنل می‌رسد
+   جایش را یک نسخه‌ی سفید از تیتر (فقط داخل ناحیه‌ی سبز دیده می‌شود) می‌گیرد که کمی بعد کامل محو می‌شود.
+   موقع برگشت، z-index با تأخیر به حالت اول برمی‌گردد تا تیتر از زیر پنلِ در حال جمع‌شدن باز شود */
+.copy{transition:z-index 0s linear .85s}
+body[data-state="gallery"] .copy{z-index:0;pointer-events:none;transition:z-index 0s}
+.h1ghost{position:fixed;margin:0;color:#fff;pointer-events:none;opacity:0;text-shadow:0 2px 3px rgba(0,0,0,.28)}
+@keyframes ghostOut{0%,40%{opacity:1}100%{opacity:0}}
+body[data-state="gallery"] .h1ghost{animation:ghostOut 1.4s ease-out forwards}
+@keyframes galUp{from{opacity:0;transform:translateY(28px)}}
+@keyframes galFade{from{opacity:0}}
+body[data-state="gallery"] .gf{animation:galUp .55s cubic-bezier(.2,.7,.2,1) calc(.7s + var(--i,0)*.09s) backwards}
+body[data-state="gallery"] .gal-wires{animation:galFade .6s ease-out 1s backwards}
+.gal .hud{position:absolute;left:clamp(24px,3vw,64px);top:clamp(66px,4.8vw,82px)}
+/* متن بالای نگارخانه: از چپ به راست با فید می‌آید (l = از چپ)، کمی بعد از شروع جارو شدن پنل */
+body[data-state="gallery"] .gal .hud.g{transition-delay:.3s,.3s}
+.gal-wires{position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.gal .wire,.gal .flow{stroke-width:.8;stroke-linecap:round;stroke-linejoin:round}
+.gal .flow{filter:drop-shadow(0 0 1.2px rgba(255,157,46,.9))}
+.gal .pad{fill:#1d2a2b;stroke:var(--wire);stroke-width:.7}
+.gf{pointer-events:auto;position:absolute;margin:0;border:2px solid var(--wire);border-radius:8px;overflow:hidden;cursor:pointer;outline:none;
+  background:repeating-linear-gradient(135deg,#16282a 0 8px,#1b3032 8px 16px);
+  transition:border-color .3s,box-shadow .3s,transform .3s}
+.gf img{display:block;width:100%;height:100%;object-fit:cover}
+.gf figcaption{position:absolute;left:8px;top:6px;padding:3px 8px;border-radius:99px;background:rgba(18,32,33,.75);font:400 11px/1 var(--f-display);letter-spacing:.14em;color:#eef5f5}
+.gf:hover,.gf:focus-visible{transform:translateY(-2px)}
+.gf.sel{border-color:var(--lit);box-shadow:0 0 16px rgba(255,157,46,.6)}
+.gf.lit{border-color:var(--lit);box-shadow:0 0 10px rgba(255,157,46,.35);transition-delay:.5s}
+@media (max-width:760px){.h1ghost{font-size:38px}.menu{margin-top:12px}.menu li{font-size:17px;padding-top:.3em}.menu li:not(:last-child)::after{margin-top:.35em;height:3px}.gal{padding-top:96px}.gal-in{width:96vw}body[data-state="gallery"] .stage-shadow{top:-100vh;right:0}body[data-state="gallery"] .edge-shadow i{clip-path:polygon(0 0,0 0,0 0)}.gf{border-width:1.5px;border-radius:5px}.gf figcaption{font-size:8px;left:4px;top:3px;padding:2px 5px}}
+
+@media (max-width:760px){
+  .scene{display:flex;flex-direction:column;padding-top:86px}
+  .watermark .track{animation-duration:24s}
+  .watermark.wm-sub{top:20%}
+  nav{gap:5px;font-size:11.5px}
+  nav a{padding:4px 9px}
+  /* متن فشرده‌تر تا جای بیشتری برای پنل بماند */
+  .copy{width:calc(100% - 34px);margin:12px 34px 0 0}
+  .copy h1{font-size:38px}
+  .copy p{max-width:none;font-size:13px;line-height:1.8;margin-top:12px}
+  .chip{margin-top:10px}
+  .actions{margin-top:16px}
+  .sign{right:12px;bottom:4px;font-size:9.5px;color:#fff;text-shadow:2px 2px 2px rgba(255,255,255,.4)}
+  /* پنل: مدار تمام جای باقی‌مانده را می‌گیرد؛ HUD (LEVEL 01 + وضعیت مدار) بالای پنل وسط‌چین می‌آید و متن راهنما زیرش */
+  .stage{position:relative;flex:1;min-height:0;width:calc(100% + 48px);margin:14px -24px -20px;padding:0}
+  .panel-s{flex-direction:column;justify-content:flex-start;gap:6px;padding:44px 10px 12px}
+  /* HUD در موبایل: به‌جای position absolute، آیتم اولِ جریان پنل می‌شود و وسط‌چین بالا می‌نشیند */
+  .hud{position:static;flex:0 0 auto;justify-content:center;pointer-events:none}
+  .hint{position:static;flex:0 0 auto;max-width:none;text-align:center;font-size:12px}
+  .stage svg{width:min(86%,360px);flex:1 1 auto;min-height:0;max-height:100%;margin:0}
+  .clan{left:auto;right:12px;font-size:21px;bottom:calc(1.9em + 14px)}
+  .stage-bg{clip-path:polygon(0 12%,100% 0,100% 100%,0 100%)}
+  .stage-bg::before{-webkit-mask-image:linear-gradient(to bottom,#000 8%,transparent 75%);mask-image:linear-gradient(to bottom,#000 8%,transparent 75%)}
+  .edge-shadow{filter:drop-shadow(0 9px 8px rgba(0,0,0,.55))}
+  .edge-shadow i{clip-path:polygon(0 0,100% 0,0 12%)}
+  .dots{right:7px;gap:8px}
+  .dots i{width:8px;height:8px;border-width:2px}
+}
+/* ===== عملکرد =====
+   انیمیشن‌های بی‌نهایتِ مخصوص «مراحل» وقتی صفحه‌ی دیگری فعال است متوقف می‌شوند (هم دسکتاپ، هم گوشی) */
+body:not([data-state="steps"]) :is(.chip .ab,.chip .ab .la,.chip .ab .lb,.hint,.goo-ring){animation-play-state:paused}
+body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* زیر پنل تیره پنهان است */
+/* گوشی: لمس فقط برای تعویض ایستگاه (با JS) است؛ اسکرول بومی خاموش تا نوار آدرس جمع/باز نشود و resize پشت‌سرهم نیاید */
+@media (pointer:coarse){html,body{touch-action:none}}
+@media (max-width:760px){
+  /* ۱) واترمارک: بدون فیلتر سایه و بدون mix-blend (سنگین‌ترین بخش‌ها وقتی هر فریم جابه‌جا می‌شوند)؛
+        فقط ۲ تکرار GATES کافی است چون هر نیمه از عرض صفحه پهن‌تر است (بافت ۳ برابر کوچک‌تر) */
+  .watermark{filter:none}
+  .watermark .track span:nth-child(n+3){display:none}
+  .watermark.wm-sub{mix-blend-mode:normal;-webkit-text-stroke:3px rgba(3,9,9,.75)}
+  /* ۲) متن راهنما: به‌جای انیمیشن text-shadow (هر فریم دوباره‌رنگ‌آمیزی)، یک هاله‌ی ثابت */
+  .hint{animation:none;text-shadow:0 0 3px rgba(255,255,255,.75),0 0 10px rgba(255,255,255,.45),0 0 24px rgba(205,232,255,.28)}
+  /* ۳) کلیدها: بدون فیلتر روی لکه‌ی آبی؛ (شکل لکه در JS ثابت می‌شود و فقط حلقه‌ی موج می‌زند) */
+  .goo-blob{filter:none}
+  /* ۴) مایع و LED: هاله‌ی فیلتریِ سنگین حذف؛ هاله‌ی گرادیانی LED (led-halo) جایش را می‌گیرد */
+  .flow,.gal .flow{filter:none}
+  .led.on{filter:drop-shadow(0 0 3px #ffd9a0) drop-shadow(0 0 10px var(--lit))}
+}
+@media (prefers-reduced-motion:reduce){*:not(.clan):not(.flow):not(.hud-st):not(.hud-dot):not(.led):not(.led-halo):not(.led-core):not(.h):not(.s):not(.g):not(.stage-shadow):not(.stage-bg):not(.es):not(.copy):not(.gal):not(.gf):not(.sg):not(.sign):not(.menu):not(.actions):not([data-sec]){transition:none!important}}
+</style>
+</head>
+<body data-state="home">
+<nav aria-label="منوی اصلی">
+    <a href="#home" data-sec="home" aria-current="page">خانه</a>
+    <a href="#steps" data-sec="steps">مراحل</a>
+    <a href="#gallery" data-sec="gallery">نگارخانه</a>
+    <a href="#menu" data-sec="menu">فهرست</a>
+    <a href="#" class="follow h l">دنبال‌کنندگان <b id="count">۰</b></a>
+  </nav>
+<div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><b class="ink"></b></div>
+
+<div class="scene" id="scene">
+  <div class="watermark" aria-hidden="true"><div class="track"><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span></div></div>
+  <section class="copy">
+    <h1>GATE<br>KEEPER</h1>
+    <ul class="menu" aria-label="فهرست">
+      <li style="--i:0">درباره‌ی بازی</li>
+      <li style="--i:1">گیت‌ها و مدارها</li>
+      <li style="--i:2">تیم سازنده</li>
+      <li style="--i:3">تماس با ما</li>
+    </ul>
+    <div class="swap">
+      <p class="h r">بازی معمای مدار منطقی: گیت‌ها را وصل کن، سیم‌ها را بکش و ماشین را بیدار کن.</p>
+      <p class="s r">بازی معمای مدار منطقی: گیت‌ها را وصل کن، سیم‌ها را بکش و ماشین را بیدار کن.</p>
+    </div>
+    <div class="chip s r"><span class="ab" aria-hidden="true"><b class="la">A</b><i>&amp;</i><b class="lb">B</b></span> مرحله‌ی ۱: اولین گیت AND</div>
+    <div class="actions">
+      <a class="btn solid" href="#">دموی بازی</a>
+      <button class="btn h r" id="followBtn" type="button">دنبال کردن</button>
+    </div>
+  </section>
+  <div class="sign"><img src="signature.png" alt="امضا" onerror="this.parentNode.textContent='ساخته‌شده توسط نام استودیوی شما'"></div>   <!-- اگر signature.png کنار index.html نبود، همان متن قبلی نشان داده می‌شود -->
+  <section class="stage" aria-label="صحنه‌ی بازی">
+    <div class="stage-shadow" aria-hidden="true"><div class="stage-bg"><div class="watermark wm-sub"><div class="track"><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span></div></div><img class="art h l" src="art.png" alt="" onerror="this.remove()"><div class="edge-shadow"><i class="es"></i></div></div></div>
+    <div class="panel-s s l">
+      <div class="hud">
+        <span class="hud-lvl">LEVEL 01</span>
+        <span class="hud-st" id="hudSt" role="status"><i class="hud-dot"></i><b>مدار خاموش است</b></span>
+      </div>
+      <p class="hint">هر دو کلید را بزن تا LED روشن شود.</p>
+      <svg viewBox="0 0 400 420" role="group" aria-label="مدار گیت AND">
+      <defs>
+        <radialGradient id="waterG"><stop offset="0" stop-color="#bfeaf5" stop-opacity=".05"/><stop offset=".7" stop-color="#9fdcee" stop-opacity=".2"/><stop offset="1" stop-color="#bfeaf5" stop-opacity=".38"/></radialGradient>
+        <radialGradient id="ledHalo"><stop offset="0" stop-color="#ff9d2e" stop-opacity=".55"/><stop offset=".45" stop-color="#ff9d2e" stop-opacity=".18"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>
+        <radialGradient id="ledCore"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset=".55" stop-color="#ffd27a" stop-opacity=".45"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>
+      </defs>
+      <path id="wA" class="wire" d="M80 130H150"/>
+      <path id="wB" class="wire" d="M80 290H150"/>
+      <path id="wO" class="wire" d="M310 210H340"/>
+      <path id="fA" class="flow" pathLength="1" d="M80 130H150"/>
+      <path id="fB" class="flow" pathLength="1" d="M80 290H150"/>
+      <path id="fO" class="flow out" pathLength="1" d="M310 210H340"/>
+      <path class="gate" d="M150 120H220A90 90 0 0 1 220 300H150Z"/>
+      <path id="gA" class="flow gate" pathLength="1" d="M150 130V120H220A90 90 0 0 1 310 210"/>
+      <path id="gB" class="flow gate" pathLength="1" d="M150 290V300H220A90 90 0 0 0 310 210"/>
+      <path id="gA2" class="flow gate edge" pathLength="1" d="M150 130V210"/>
+      <path id="gB2" class="flow gate edge" pathLength="1" d="M150 290V210"/>
+      <text x="168" y="219">AND</text>
+      <g class="sw" id="sA" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی A">
+        <g class="goo" aria-hidden="true">
+          <path class="goo-blob" d="M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z">
+            <animate attributeName="d" dur="6.2s" begin="0s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;.2;.4;.6;.8;1" keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
+              values="M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z;
+          M84.6 128.5C84.4 137.3 85.5 151.4 79.8 157.1C74.2 162.8 60.6 162.7 50.4 162.6C40.3 162.5 25.4 161.5 18.7 156.2C12.1 151.0 10.7 140.1 10.5 131.1C10.4 122.0 11.6 107.2 18.0 102.0C24.3 96.7 38.2 99.3 48.6 99.7C59.1 100.0 74.8 99.2 80.8 104.0C86.8 108.8 84.7 119.6 84.6 128.5Z;
+          M91.9 128.4C92.1 136.6 86.9 148.7 79.9 154.6C72.9 160.6 59.7 163.8 49.7 164.0C39.7 164.3 25.7 161.5 19.9 156.1C14.1 150.6 15.3 140.5 14.8 131.5C14.3 122.4 11.4 106.9 17.1 101.8C22.7 96.7 38.3 100.3 48.6 100.9C58.8 101.5 71.4 100.7 78.6 105.3C85.8 109.8 91.7 120.2 91.9 128.4Z;
+          M86.1 128.8C86.3 137.7 86.0 151.0 79.8 156.6C73.7 162.2 59.7 161.9 49.3 162.2C38.9 162.6 23.3 164.1 17.4 158.9C11.6 153.7 14.1 140.2 14.1 131.1C14.2 122.1 11.8 109.9 17.7 104.7C23.5 99.6 39.1 100.4 49.2 100.1C59.4 99.9 72.5 98.5 78.6 103.3C84.8 108.1 85.9 119.9 86.1 128.8Z;
+          M84.9 129.2C84.9 138.2 86.2 150.4 80.4 156.5C74.6 162.6 60.6 165.5 49.9 165.5C39.3 165.6 23.2 162.9 16.7 156.8C10.1 150.8 9.7 137.5 10.6 129.2C11.5 120.9 15.5 111.5 22.3 106.8C29.1 102.0 41.7 101.4 51.4 100.6C61.2 99.8 75.0 97.3 80.6 102.1C86.2 106.8 85.0 120.1 84.9 129.2Z;
+          M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z"/>
+          </path>
+          <rect class="goo-ring " x="20" y="105" width="60" height="50" rx="10"/>
+        </g>
+        <rect x="20" y="105" width="60" height="50"/><text x="42" y="138">A</text></g>
+      <g class="sw" id="sB" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی B">
+        <g class="goo" aria-hidden="true">
+          <path class="goo-blob" d="M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z">
+            <animate attributeName="d" dur="7.1s" begin="-2.4s" repeatCount="indefinite" calcMode="spline"
+              keyTimes="0;.2;.4;.6;.8;1" keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
+              values="M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z;
+          M88.1 290.0C88.0 298.5 84.6 310.1 78.4 315.7C72.1 321.3 60.6 323.3 50.8 323.4C41.0 323.5 26.1 322.0 19.7 316.3C13.3 310.5 13.0 298.0 12.5 288.7C12.0 279.4 10.7 265.6 16.9 260.5C23.0 255.5 39.1 257.6 49.5 258.3C59.9 259.0 73.0 259.5 79.4 264.8C85.8 270.1 88.3 281.6 88.1 290.0Z;
+          M88.7 290.5C88.6 299.7 86.8 309.9 80.4 315.9C74.1 322.0 60.7 326.8 50.7 326.8C40.8 326.9 26.3 322.1 20.7 316.2C15.1 310.3 17.2 299.5 17.2 291.3C17.2 283.1 15.0 272.9 20.7 267.0C26.4 261.0 41.1 256.4 51.2 255.4C61.2 254.4 74.8 255.2 81.1 261.0C87.4 266.8 88.8 281.4 88.7 290.5Z;
+          M89.7 291.4C89.4 299.7 85.5 310.3 78.8 315.2C72.0 320.1 58.7 320.9 49.1 320.7C39.6 320.4 27.3 318.8 21.5 313.5C15.7 308.1 14.5 297.2 14.1 288.5C13.7 279.8 13.1 266.9 19.3 261.5C25.5 256.1 41.0 255.2 51.2 255.9C61.4 256.6 74.1 259.6 80.5 265.5C86.9 271.4 90.0 283.2 89.7 291.4Z;
+          M89.3 290.2C88.9 299.2 86.4 311.3 79.8 316.2C73.1 321.0 59.9 318.7 49.4 319.1C38.9 319.5 23.0 323.5 16.9 318.6C10.7 313.7 12.3 299.5 12.5 290.0C12.7 280.5 11.9 266.6 18.0 261.6C24.2 256.5 38.7 259.4 49.5 259.6C60.3 259.7 76.0 257.5 82.7 262.6C89.3 267.7 89.8 281.3 89.3 290.2Z;
+          M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z"/>
+          </path>
+          <rect class="goo-ring b" x="20" y="265" width="60" height="50" rx="10"/>
+        </g>
+        <rect x="20" y="265" width="60" height="50"/><text x="42" y="298">B</text></g>
+      <circle id="ledHalo" class="led-halo" cx="362" cy="210" r="72"/>
+      <circle id="led" class="led" cx="362" cy="210" r="24"/>
+      <circle id="ledCore" class="led-core" cx="362" cy="210" r="22"/>
+    </svg>
+    </div>
+    <div class="clan-wrap sg l"><button class="clan" id="clan" type="button" aria-pressed="false" aria-label="Gate Keepers">GATE<br>KEEPERS</button></div>
+  </section>
+  <section class="gal" aria-label="نگارخانه">
+    <div class="hud g l"><span class="hud-lvl">GALLERY</span><span class="hud-st on"><i class="hud-dot"></i><b>روی هر عکس بایست تا مدار روشن شود</b></span></div>
+    <div class="gal-in">
+        <svg class="gal-wires" viewBox="0 0 160 90" aria-hidden="true">
+          <path class="wire" d="M44 27H52V19H60"/><path class="flow" pathLength="1" data-a="1" data-b="2" d="M44 27H52V19H60"/>
+          <path class="wire" d="M90 19H98V28H106"/><path class="flow" pathLength="1" data-a="2" data-b="3" d="M90 19H98V28H106"/>
+          <path class="wire" d="M25 39V54"/><path class="flow" pathLength="1" data-a="1" data-b="4" d="M25 39V54"/>
+          <path class="wire" d="M42 68H50V64H58"/><path class="flow" pathLength="1" data-a="4" data-b="5" d="M42 68H50V64H58"/>
+          <path class="wire" d="M75 30V46"/><path class="flow" pathLength="1" data-a="2" data-b="5" d="M75 30V46"/>
+          <path class="wire" d="M98 64H105V71H112"/><path class="flow" pathLength="1" data-a="5" data-b="6" d="M98 64H105V71H112"/>
+          <path class="wire" d="M128 42V58"/><path class="flow" pathLength="1" data-a="3" data-b="6" d="M128 42V58"/>
+        </svg>
+        <figure class="gf" data-k="1" tabindex="0" style="--i:0;left:3.75%;top:16.67%;width:23.75%;height:26.67%"><img src="gallery/1.jpg" alt="" onerror="this.remove()"><figcaption>01</figcaption></figure>
+        <figure class="gf" data-k="2" tabindex="0" style="--i:1;left:37.50%;top:8.89%;width:18.75%;height:24.44%"><img src="gallery/2.jpg" alt="" onerror="this.remove()"><figcaption>02</figcaption></figure>
+        <figure class="gf" data-k="3" tabindex="0" style="--i:2;left:66.25%;top:15.56%;width:27.50%;height:31.11%"><img src="gallery/3.jpg" alt="" onerror="this.remove()"><figcaption>03</figcaption></figure>
+        <figure class="gf" data-k="4" tabindex="0" style="--i:3;left:8.75%;top:60.00%;width:17.50%;height:31.11%"><img src="gallery/4.jpg" alt="" onerror="this.remove()"><figcaption>04</figcaption></figure>
+        <figure class="gf" data-k="5" tabindex="0" style="--i:4;left:36.25%;top:51.11%;width:25.00%;height:40.00%"><img src="gallery/5.jpg" alt="" onerror="this.remove()"><figcaption>05</figcaption></figure>
+        <figure class="gf" data-k="6" tabindex="0" style="--i:5;left:70.00%;top:64.44%;width:22.50%;height:28.89%"><img src="gallery/6.jpg" alt="" onerror="this.remove()"><figcaption>06</figcaption></figure>
+    </div>
+  </section>
+</div>
+
+<!-- چهار «ایستگاه» اسکرول (خانه، مراحل، نگارخانه، فهرست)؛ صحنه ثابت است و فقط وضعیتش عوض می‌شود -->
+<div class="snap" id="home"></div>
+<div class="snap" id="steps"></div>
+<div class="snap" id="gallery"></div>
+<div class="snap" id="menu"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const s = {A:false, B:false};
+let hudT = 0;
+/* پارتیکل‌های تشویق: وقتی مرحله حل شد و LED روشن شد، از خود LED چند ده تکه‌ی رنگارنگ با جهت و سرعت و اندازه‌ی تصادفی پخش می‌شوند.
+   با کند شدن کم‌کم دور می‌شوند و وسط مسیر محو می‌شوند. روی canvas کشیده می‌شود (بدون وابستگی به ترنزیشن CSS) */
+const fx = document.createElement('canvas'), fc = fx.getContext('2d');
+fx.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:30;pointer-events:none;display:none';   // تا ذره‌ای نباشد اصلاً لایه‌ی GPU نمی‌سازد
+fx.setAttribute('aria-hidden','true');
+document.body.appendChild(fx);
+let fxW = 0, fxH = 0, dpr = 1, parts = [], fxRaf = 0, fxLast = 0;
+/* dpr حداکثر ۲ (ذرات ریزند)؛ اندازه فقط موقع پاشیدن حساب می‌شود، نه با هر resize (نوار آدرس موبایل موقع اسکرول resize می‌دهد) */
+function fxSize(){ dpr = Math.min(2, window.devicePixelRatio || 1); fxW = innerWidth; fxH = innerHeight; fx.width = fxW*dpr; fx.height = fxH*dpr; }
+const FX_N = matchMedia('(max-width:760px)').matches ? 70 : 120;
+function burst(){
+  fxSize(); fx.style.display = 'block';
+  const r = $('led').getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+  for(let i=0;i<FX_N;i++){
+    const a = Math.random()*Math.PI*2, v = 260 + Math.random()*900;
+    parts.push({x:cx, y:cy, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 140, size:4 + Math.random()*6, rot:Math.random()*6.28, vr:(Math.random()-.5)*14,
+      hue:Math.floor(Math.random()*360), shape:Math.floor(Math.random()*3), life:0, max:1.2 + Math.random()*1.1});
+  }
+  if(!fxRaf){ fxLast = performance.now(); fxRaf = requestAnimationFrame(fxStep); }
+}
+function fxStep(now){
+  const dt = Math.min(.05, (now - fxLast)/1000); fxLast = now;
+  fc.setTransform(dpr,0,0,dpr,0,0); fc.clearRect(0,0,fxW,fxH);
+  parts = parts.filter(p => p.life < p.max);
+  const drag = Math.pow(.3, dt);                                  // کند شدن تدریجی
+  for(const p of parts){
+    p.life += dt; const k = p.life/p.max;
+    p.vx *= drag; p.vy = p.vy*drag + 240*dt;                      // کمی گرانش
+    p.x += p.vx*dt; p.y += p.vy*dt; p.rot += p.vr*dt;
+    fc.save(); fc.globalAlpha = k < .35 ? 1 : Math.max(0, 1 - (k-.35)/.65);   // از ۳۵٪ عمر شروع به محو شدن می‌کند
+    fc.translate(p.x,p.y); fc.rotate(p.rot); fc.fillStyle = `hsl(${p.hue} 90% 60%)`;
+    const s = p.size;
+    if(p.shape === 0) fc.fillRect(-s/2,-s/4,s,s/2);
+    else if(p.shape === 1){ fc.beginPath(); fc.arc(0,0,s/2.2,0,6.283); fc.fill(); }
+    else { fc.beginPath(); fc.moveTo(0,-s/2); fc.lineTo(s/2,s/2); fc.lineTo(-s/2,s/2); fc.closePath(); fc.fill(); }
+    fc.restore();
+  }
+  if(parts.length) fxRaf = requestAnimationFrame(fxStep); else { fxRaf = 0; fc.clearRect(0,0,fxW,fxH); fx.style.display = 'none'; }
+}
+function render(){
+  const out = s.A && s.B;
+  [['A','sA','fA'],['B','sB','fB']].forEach(([k,sw,w])=>{
+    $(sw).classList.toggle('on', s[k]);
+    $(sw).setAttribute('aria-checked', s[k]);
+    $(w).classList.toggle('on', s[k]);
+    $('g'+k).classList.toggle('on', s[k]);
+    $('g'+k+'2').classList.toggle('on', s[k]);
+  });
+  $('fO').classList.toggle('on', out);
+  $('led').classList.toggle('on', out);
+  $('ledHalo').classList.toggle('on', out); $('ledCore').classList.toggle('on', out);
+  /* وضعیت ماشین: متن هم‌زمان با روشن شدن LED (بعد از رسیدن مایع) عوض می‌شود */
+  clearTimeout(hudT);
+  const setHud = () => { $('hudSt').classList.toggle('on', out); $('hudSt').querySelector('b').textContent = out ? 'مدار روشن شد' : 'مدار خاموش است';
+    if(out && document.body.dataset.state === 'steps') burst(); };
+  out ? (hudT = setTimeout(setHud, 1500)) : setHud();
+}
+['A','B'].forEach(k=>{
+  const el = $('s'+k), flip = ()=>{ s[k] = !s[k]; render(); };
+  el.addEventListener('click', e => {
+    flip();
+    /* کلیک موس (e.detail > 0): فوکوس برداشته می‌شود تا هیچ خط/حلقه‌ی سفیدی دور کلید نماند.
+       کلیک با کیبورد (Enter) detail=0 دارد، پس فوکوس و نشانه‌اش برای کاربر کیبوردی می‌ماند */
+    if(e.detail) el.blur();
+  });
+  el.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); flip(); }});
+});
+render();
+
+/* نشانه‌ی فوکوس سفید دور کلیدهای A و B فقط برای حرکت با کیبورد (Tab) روشن است؛ هر کلیک موس خاموشش می‌کند */
+addEventListener('keydown', e => { if(e.key === 'Tab') document.body.classList.add('kbd'); });
+addEventListener('mousedown', () => document.body.classList.remove('kbd'));
+
+/* دنبال کردن: برای هر دستگاه فقط یک‌بار (با localStorage). شمارنده از ۰ شروع می‌شود */
+const fb = $('followBtn'), cnt = $('count'), KEY = 'gk_followed';
+let followed = false;
+try { followed = localStorage.getItem(KEY) === '1'; } catch (e) {}
+const show = () => { cnt.textContent = (followed ? 1 : 0).toLocaleString('fa-IR'); };
+const lock = () => { fb.disabled = true; fb.textContent = 'دنبال شد'; };
+show();
+if (followed) lock();
+
+fb.addEventListener('click', () => {
+  if (followed) return;
+  followed = true;
+  try { localStorage.setItem(KEY, '1'); } catch (e) {}
+  show();
+  [[fb,'flash'],[cnt,'bump']].forEach(([el,c]) => { el.classList.remove(c); void el.offsetWidth; el.classList.add(c); });
+});
+fb.addEventListener('animationend', () => { fb.classList.remove('flash'); if (followed) lock(); });
+cnt.addEventListener('animationend', () => cnt.classList.remove('bump'));
+
+/* کلیک روی GATE KEEPERS: چرخش تصادفی + فشرده شدن (CSS) + روشن/خاموش شدن */
+const clan = $('clan');
+const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tilt')) || 30;
+let rot = base;
+clan.addEventListener('click', () => {
+  const prev = rot;
+  rot = base + (Math.random() < 0.5 ? -1 : 1) * (8 + Math.random() * 14);
+  clan.style.setProperty('--prev', prev + 'deg');
+  clan.style.setProperty('--rot', rot + 'deg');
+  const on = clan.classList.toggle('on');
+  clan.setAttribute('aria-pressed', on);
+  clan.classList.remove('squish'); void clan.offsetWidth; clan.classList.add('squish');
+});
+clan.addEventListener('animationend', () => clan.classList.remove('squish'));
+
+/* صفحه‌ها: خانه و مراحل. منو و نقطه‌ها با اسکرول هماهنگ می‌شوند */
+const navLinks = [...document.querySelectorAll('nav a[data-sec]')];
+const dotEls = [...document.querySelectorAll('.dots i')];
+const dotsEl = document.querySelector('.dots'), ink = dotsEl.querySelector('.ink');
+let curDot = 0, inkT = 0, inkB = 0, inkRaf = 0;
+const dotsW = dotsEl.cloneNode(true), inkW = dotsW.querySelector('.ink'), stageEl = document.querySelector('.stage');
+dotsW.classList.add('w'); dotsW.setAttribute('aria-hidden','true'); dotsEl.after(dotsW);
+function setInk(T,B){ inkT = T; inkB = B; const t = T + 'px', h = Math.max(0,B-T) + 'px'; ink.style.top = t; ink.style.height = h; inkW.style.top = t; inkW.style.height = h; }
+function dotEdges(i){ const d = dotEls[i]; return [d.offsetTop, d.offsetTop + d.offsetHeight]; }
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const easeOut = t => 1 - Math.pow(1-t,3), easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+/* مثل کش: لبه‌ی جلویی زودتر و تند می‌رسد، لبه‌ی عقبی با تأخیر و نرم‌تر دنبالش می‌آید؛ وسط راه قرص روی همه‌ی نقطه‌های میانی کشیده است.
+   با requestAnimationFrame انجام می‌شود تا در همه‌ی مرورگرها و تنظیمات سیستم یکسان کار کند */
+function moveInk(i){
+  if(i === curDot) return;
+  const down = i > curDot, dist = Math.abs(i - curDot);
+  const lead = 110 + 40*dist, delay = 45, tail = lead + 30;       // میلی‌ثانیه (کل کشش برای ۲ نقطه ≈ ۲۶۰ms)
+  const [tT,tB] = dotEdges(i), fT = inkT, fB = inkB;
+  curDot = i;
+  cancelAnimationFrame(inkRaf);
+  const t0 = performance.now();
+  const step = now => {
+    const el = Math.max(0, now - t0);
+    const kLead = easeOut(clamp01(el/lead)), kTail = easeInOut(clamp01((el-delay)/tail));
+    setInk(fT + (tT-fT)*(down ? kTail : kLead), fB + (tB-fB)*(down ? kLead : kTail));
+    if(el < delay + tail) inkRaf = requestAnimationFrame(step); else setInk(tT,tB);
+  };
+  inkRaf = requestAnimationFrame(step);
+}
+setInk(...dotEdges(0));
+/* گوشی: لبه‌ی بالای پنل سبز (مورب، از ۱۲٪ ارتفاع در چپ تا ۰ در راست) کجای ستون نقطه‌هاست؛ از ~۵۶px بالاترش گردینت شروع می‌شود تا کاملاً سفید در سبز */
+function updateDotsMask(){
+  if(!matchMedia('(max-width:760px)').matches) return;
+  const r = stageEl.getBoundingClientRect(), d = dotsEl.getBoundingClientRect();
+  const k = Math.min(1, Math.max(0, (r.right - (d.left + d.width/2)) / r.width));
+  const m2 = r.top + .12*r.height*k + 8 - d.top, m1 = m2 - 56;
+  [dotsEl, dotsW].forEach(e => { e.style.setProperty('--m1', m1 + 'px'); e.style.setProperty('--m2', m2 + 'px'); });
+}
+updateDotsMask(); addEventListener('resize', updateDotsMask); addEventListener('load', updateDotsMask);
+if(window.ResizeObserver) new ResizeObserver(updateDotsMask).observe(stageEl);
+addEventListener('resize', () => { cancelAnimationFrame(inkRaf); setInk(...dotEdges(curDot)); });
+const dotIndex = {home:0, steps:1, gallery:2, menu:3};
+const stageSvg = document.querySelector('.stage svg'), liteMQ = matchMedia('(max-width:760px)');
+/* انیمیشن SMIL لکه‌ها: در گوشی کلاً ثابت؛ در دسکتاپ فقط وقتی «مراحل» دیده می‌شود */
+function applySmil(id){ try{ (liteMQ.matches || id !== 'steps') ? stageSvg.pauseAnimations() : stageSvg.unpauseAnimations(); }catch(e){} }
+function setActive(id){
+  applySmil(id);
+  document.body.dataset.state = ['menu','steps','gallery'].includes(id) ? id : 'home';
+  navLinks.forEach(a => a.dataset.sec === id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'));
+  dotEls.forEach((d,i) => d.classList.toggle('on', i === dotIndex[id]));
+  moveInk(dotIndex[id]);
+  clearBoot(); lightNode(null);
+}
+/* نگارخانه: پد (سرِ سیم‌ها) خودکار از ابتدا و انتهای هر سیم ساخته می‌شود. با هاور/فوکوس روی هر عکس، سیم‌های متصل به آن
+   مثل مایع بازی نارنجی می‌شوند و بعد قاب‌های همسایه روشن می‌شوند. سیم و جای قاب‌ها را در HTML (viewBox ۱۶۰×۹۰) عوض کن */
+const gsvg = document.querySelector('.gal-wires'), gfs = [...document.querySelectorAll('.gf')], gfl = [...gsvg.querySelectorAll('.flow')];
+gsvg.querySelectorAll('.wire').forEach(w => { const L = w.getTotalLength(); [0,L].forEach(l => {
+  const q = w.getPointAtLength(l), c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',q.x); c.setAttribute('cy',q.y); c.setAttribute('r',1.3); c.setAttribute('class','pad'); gsvg.appendChild(c); }); });
+function lightNode(k){
+  const nb = new Set();
+  gfl.forEach(w => { const on = !!k && (w.dataset.a === k || w.dataset.b === k); w.classList.toggle('on', on); if(on) nb.add(w.dataset.a === k ? w.dataset.b : w.dataset.a); });
+  gfs.forEach(f => { f.classList.toggle('sel', f.dataset.k === k); f.classList.toggle('lit', nb.has(f.dataset.k)); });
+}
+/* روشن‌شدن اولیه‌ی قاب‌ها حذف شد؛ فقط با هاور/فوکوس روشن می‌شوند */
+let bootT = [];
+const clearBoot = () => { bootT.forEach(clearTimeout); bootT = []; };
+gfs.forEach(f => { const k = f.dataset.k;
+  ['mouseenter','focus'].forEach(ev => f.addEventListener(ev, () => { clearBoot(); lightNode(k); }));
+  ['mouseleave','blur'].forEach(ev => f.addEventListener(ev, () => lightNode(null))); });
+
+/* نسخه‌ی سفیدِ تیتر داخل پنل سبز (کلیپ‌شده با خود پنل)؛ جایش از روی تیتر اصلی خوانده می‌شود */
+const h1el = document.querySelector('.copy h1'), ghost = h1el.cloneNode(true);
+ghost.className = 'h1ghost'; ghost.setAttribute('aria-hidden','true');
+document.querySelector('.stage-bg').appendChild(ghost);
+function placeGhost(){ const r = h1el.getBoundingClientRect(); ghost.style.left = r.left + 'px'; ghost.style.top = r.top + 'px'; ghost.style.width = r.width + 'px'; }
+placeGhost(); addEventListener('resize', placeGhost); addEventListener('load', placeGhost);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(placeGhost);
+
+/* رنگ مکمل از روی آرت: زنده‌ترین رنگ غالب تصویر را پیدا می‌کند و رنگ روبه‌رویش (۱۸۰ درجه روی چرخه‌ی رنگ)
+   را روی «دنبال‌کنندگان» می‌گذارد. هر بار آرت عوض شود دوباره حساب می‌شود.
+   نکته: Chrome روی file:// اجازه‌ی خواندن پیکسل نمی‌دهد. پس اگر مسدود شد، از یک نسخه‌ی کوچک آرت که
+   در localStorage ('gk_art') ذخیره شده استفاده می‌کند. این نسخه را با رها کردن (drag & drop) فایل آرت روی صفحه،
+   فقط یک بار، می‌سازی. روی سرور واقعی یا وقتی آرت از localStorage/data URL بیاید، همین‌ها لازم نیست. */
+const artImg = document.querySelector('.art'), followPill = document.querySelector('nav .follow');
+const ART_KEY = 'gk_art', HINT = 'برای رنگ مکمل، فایل آرت را روی صفحه رها کن (drag & drop)';
+function hsl2rgb(h,s,l){
+  const k = n => (n + h/30) % 12, a = s*Math.min(l,1-l), f = n => l - a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
+  return [f(0),f(8),f(4)];
+}
+/* true = پردازش شد (حتی اگر آرت بی‌رنگ بود)؛ false = مرورگر اجازه‌ی خواندن پیکسل نداد */
+function paintComplement(img){
+  try{
+    const N = 48, c = document.createElement('canvas'); c.width = c.height = N;
+    const g = c.getContext('2d', {willReadFrequently:true});
+    g.drawImage(img,0,0,N,N);
+    const d = g.getImageData(0,0,N,N).data, bins = new Array(36).fill(0);
+    for(let i=0;i<d.length;i+=4){
+      if(d[i+3] < 128) continue;
+      const r=d[i]/255, gr=d[i+1]/255, b=d[i+2]/255;
+      const mx=Math.max(r,gr,b), mn=Math.min(r,gr,b), dl=mx-mn, l=(mx+mn)/2;
+      if(dl < .08) continue;                                   // خاکستری‌ها و رنگ‌های مرده را نادیده بگیر
+      let h = mx===r ? ((gr-b)/dl)%6 : mx===gr ? (b-r)/dl+2 : (r-gr)/dl+4;
+      h = (h*60+360) % 360;
+      bins[Math.floor(h/10) % 36] += (dl/(1-Math.abs(2*l-1)||1)) * (1-Math.abs(2*l-1));   // وزن = زنده‌بودن رنگ
+    }
+    followPill.removeAttribute('title');
+    const score = bins.map((v,i) => bins[(i+35)%36] + 2*v + bins[(i+1)%36]);
+    const peak = score.indexOf(Math.max(...score));
+    if(score[peak] < .5) return true;                          // آرت تقریباً بی‌رنگ است؛ همان سفید بماند
+    const hue = (peak*10 + 5 + 180) % 360;                     // مکمل
+    const [R,G,B] = hsl2rgb(hue,.8,.62);
+    const lum = .2126*R + .7152*G + .0722*B;
+    const root = document.documentElement.style;
+    root.setProperty('--comp', `hsl(${hue} 80% 62%)`);
+    root.setProperty('--comp-ink', lum > .55 ? '#000' : '#fff');
+    return true;
+  }catch(e){ return false; }
+}
+function paintFromSrc(src){ const im = new Image(); im.onload = () => paintComplement(im); im.src = src; }
+function paintFromStored(){
+  let u = null; try{ u = localStorage.getItem(ART_KEY); }catch(e){}
+  if(u){ paintFromSrc(u); return true; }
+  return false;
+}
+/* پایان intro: بعد از لود آرت (یا شکست لود/نبودنش). اول یک reflow تا حالت پنهان واقعاً اعمال شده باشد، بعد کلاس برداشته می‌شود و گذار اجرا می‌شود */
+function endIntro(){ void document.body.offsetWidth; requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.remove('intro'))); }
+if(!artImg || (artImg.complete)) endIntro();
+else { artImg.addEventListener('load', endIntro); artImg.addEventListener('error', endIntro); }
+if(artImg){
+  const go = () => {
+    if(!artImg.naturalWidth || paintComplement(artImg)) return;
+    if(!paintFromStored()){
+      followPill.title = HINT;
+      console.warn('رنگ مکمل: Chrome خواندن پیکسل‌های art.png را روی file:// مسدود کرده. فایل آرت را یک‌بار روی صفحه رها کن، یا صفحه را از localhost باز کن.');
+    }
+  };
+  artImg.addEventListener('load', go);
+  if(artImg.complete) go();
+}
+/* رها کردن فایل تصویر روی صفحه: یک نسخه‌ی کوچک ۶۴×۶۴ از آن در localStorage ذخیره می‌شود (که taint نیست) و رنگ فوراً عوض می‌شود */
+addEventListener('dragover', e => { if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+addEventListener('drop', e => {
+  const f = e.dataTransfer && e.dataTransfer.files[0];
+  if(!f || !f.type.startsWith('image/')) return;
+  e.preventDefault();
+  const fr = new FileReader();
+  fr.onload = () => {
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement('canvas'); c.width = c.height = 64;
+      c.getContext('2d').drawImage(im,0,0,64,64);
+      const small = c.toDataURL('image/png');
+      try{ localStorage.setItem(ART_KEY, small); }catch(err){}
+      paintFromSrc(small);
+    };
+    im.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+});
+
+document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', e => {
+  const t = a.getAttribute('href').startsWith('#') && a.getAttribute('href').length > 1 && document.querySelector(a.getAttribute('href'));
+  e.preventDefault();
+  if (t) t.scrollIntoView({behavior:'smooth'});
+}));
+document.querySelectorAll('a.btn[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const t = a.getAttribute('href').length > 1 && document.querySelector(a.getAttribute('href'));
+  e.preventDefault(); if (t) t.scrollIntoView({behavior:'smooth'});
+}));
+/* صفحه‌ی فعال از روی موقعیت اسکرول: از نیمه‌ی راه بین «خانه» و «مراحل» به بعد = مراحل.
+   (جای IntersectionObserver؛ مستقل از نسبت svh/lvh و نسخه‌ی Safari) */
+let curId = null, tops = null;                       // مکان ایستگاه‌ها کش می‌شود تا هر رویداد اسکرول layout اجباری نکند
+function syncScroll(){
+  const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+  /* نزدیک‌ترین ایستگاه به موقعیت اسکرول: خانه، مراحل، نگارخانه، فهرست */
+  const secs = tops || (tops = ['home','steps','gallery','menu'].map(k => [k, $(k).offsetTop]));
+  let id = 'home', best = Infinity;
+  secs.forEach(([k,top]) => { const d = Math.abs(y - top); if(d < best){ best = d; id = k; } });
+  if(id !== curId){ curId = id; setActive(id); }
+}
+addEventListener('scroll', syncScroll, {passive:true});
+addEventListener('resize', () => { tops = null; syncScroll(); });
+addEventListener('load', () => { tops = null; syncScroll(); });
+syncScroll();
+
+/* موبایل: هر کشیدنِ انگشت فقط یک ایستگاه جابه‌جا می‌کند (فلیک سریع دیگر تا ته نمی‌رود).
+   صحنه ثابت است و با اسکرول فقط وضعیتش عوض می‌شود، پس اسکرول بومی لمسی را می‌گیریم و خودمان ایستگاه بعد/قبل را می‌رویم */
+(function(){
+  const order = ['home','steps','gallery','menu'];
+  let y0 = 0, moved = false, active = false, lockUntil = 0;
+  addEventListener('touchstart', e => {
+    active = e.touches.length === 1;
+    if(!active) return;
+    y0 = e.touches[0].clientY; moved = false;
+  }, {passive:true});
+  addEventListener('touchmove', e => {                              // passive: اسکرول بومی با touch-action:none خاموش است
+    if(!active || e.touches.length !== 1){ active = false; return; }
+    if(Math.abs(e.touches[0].clientY - y0) > 8) moved = true;     // تکان کوچک = تپ، کلیک عکس‌ها خراب نشود
+  }, {passive:true});
+  addEventListener('touchend', e => {
+    if(!active || !moved) return;
+    active = false;
+    const dy = e.changedTouches[0].clientY - y0;
+    if(Math.abs(dy) < 36 || Date.now() < lockUntil) return;
+    const i = order.indexOf(curId), j = Math.max(0, Math.min(order.length-1, i + (dy < 0 ? 1 : -1)));
+    if(i < 0 || j === i) return;
+    lockUntil = Date.now() + 600;                                   // تا پایان جابه‌جایی، کشیدن بعدی نادیده
+    $(order[j]).scrollIntoView({behavior:'smooth'});
+  });
+  addEventListener('touchcancel', () => { active = false; });
+})();
+</script>
+</body>
+</html>
