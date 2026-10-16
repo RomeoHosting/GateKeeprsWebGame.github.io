@@ -287,13 +287,43 @@ body[data-state="gallery"]{--dk:#fff}
    با ورود، متن‌ها با فید از پایین می‌آیند و هر خط از راست کشیده می‌شود */
 .menu{position:absolute;margin:22px 0 0;padding:0;list-style:none;width:100%;direction:rtl;
   opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
-body[data-state="menu"] .menu{opacity:1;visibility:visible;pointer-events:auto;transition:visibility 0s}
+body[data-state="menu"]:not([data-sub]) .menu{opacity:1;visibility:visible;pointer-events:auto;transition:visibility 0s}
 .menu li{padding-top:.5em;padding-inline-start:10px;font:700 clamp(20px,2.1vw,32px)/1.5 var(--f-body);text-shadow:0 2px 3px rgba(0,0,0,.28)}
 .menu li:not(:last-child)::after{content:"";display:block;height:2px;margin-top:.55em;margin-inline-start:-10px;border-radius:99px;background:var(--ink);transform-origin:right center}
 @keyframes menuIn{from{opacity:0;transform:translateY(18px)}}
 @keyframes lineIn{from{transform:scaleX(0)}}
-body[data-state="menu"] .menu li{animation:menuIn .5s cubic-bezier(.2,.7,.2,1) calc(.2s + var(--i,0)*.1s) backwards}
-body[data-state="menu"] .menu li::after{animation:lineIn .55s cubic-bezier(.55,0,.25,1) calc(.35s + var(--i,0)*.1s) backwards}
+body[data-state="menu"]:not([data-sub]) .menu li{animation:menuIn .5s cubic-bezier(.2,.7,.2,1) calc(.2s + var(--i,0)*.1s) backwards}
+body[data-state="menu"]:not([data-sub]) .menu li::after{animation:lineIn .55s cubic-bezier(.55,0,.25,1) calc(.35s + var(--i,0)*.1s) backwards}
+/* ===== فهرست ← «تیم سازنده» =====
+   با کلیک روی «تیم سازنده» تیتر و لیست فهرست محو می‌شوند و جایشان اسم‌ها و عکس‌های تیم می‌آید (هر سطر با فید از پایین و خط گردگوشه‌ی بینشان).
+   فلش بالا برمی‌گرداند. زیرحالت با data-sub روی body است؛ با رفتن به صفحه‌ی دیگر خودکار بسته می‌شود */
+/* تیتر هم مثل بقیه‌ی عناصر حرکت دارد: موقع رفتن با شتاب از راست بیرون می‌لغزد و محو می‌شود، موقع برگشتن با همان گذار (۰.۱۵s تأخیر) از راست می‌آید */
+.copy h1{--dx:70px;--acc:cubic-bezier(.55,0,.25,1);transition:opacity .25s var(--acc) .15s,transform .3s var(--acc) .15s}
+body[data-state="menu"][data-sub="team"] .copy h1{opacity:0;visibility:hidden;transform:translateX(var(--dx));transition:opacity .25s ease-in,transform .3s var(--acc),visibility 0s linear .3s}
+.menu li[data-go]{cursor:pointer;transition:color .2s}
+.menu li[data-go]:hover,.menu li[data-go]:focus-visible{color:var(--red)}
+.menu li[data-go]:focus-visible{outline:3px solid var(--red);outline-offset:4px;border-radius:8px}
+.team{position:absolute;top:84px;margin:0;padding:0;list-style:none;width:100%;direction:rtl;display:grid;grid-template-columns:1fr 1fr;column-gap:22px;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
+.team li{padding-top:.5em;padding-inline-start:10px;text-shadow:0 2px 3px rgba(0,0,0,.28)}
+.team li:not(:last-child)::after{content:"";display:block;height:4px;margin-top:.6em;margin-inline-start:-10px;border-radius:99px;background:var(--ink);transform-origin:right center}
+.mem{display:flex;align-items:center;gap:14px;font:700 clamp(16px,1.5vw,22px)/1.4 var(--f-body)}
+.mem a{color:inherit;text-decoration:none;transition:color .2s}
+.mem a:hover,.mem a:focus-visible{color:var(--red)}
+.mem a:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:6px}
+.av{flex:none;width:60px;height:60px;border-radius:50%;border:2px solid var(--ink);overflow:hidden;
+  background:repeating-linear-gradient(135deg,#d9d9dc 0 6px,#e8e8ea 6px 12px)}
+.av img{display:block;width:100%;height:100%;object-fit:cover}
+.back{position:absolute;top:0;inset-inline-start:0;display:grid;place-items:center;width:46px;height:46px;padding:0;border-radius:50%;
+  border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s,background-color .2s,color .2s}
+.back:hover,.back:focus-visible{background:var(--ink);color:var(--paper)}
+.back:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+body[data-state="menu"][data-sub="team"] .team,body[data-state="menu"][data-sub="team"] .back{opacity:1;visibility:visible;pointer-events:auto;transition:visibility 0s,background-color .2s,color .2s}
+body[data-state="menu"][data-sub="team"] .team li{animation:menuIn .5s cubic-bezier(.2,.7,.2,1) calc(.3s + var(--i,0)*.1s) backwards}
+body[data-state="menu"][data-sub="team"] .team li::after{animation:lineIn .55s cubic-bezier(.55,0,.25,1) calc(.45s + var(--i,0)*.1s) backwards}
+body[data-state="menu"][data-sub="team"] .back{animation:menuIn .45s cubic-bezier(.2,.7,.2,1) .25s backwards}
 /* دکمه‌های زیر تیتر در فهرست نیستند (جای لیست‌اند) */
 .actions{transition:opacity .25s ease .3s}
 body[data-state="menu"] .actions{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease-in,visibility 0s linear .2s}
@@ -339,7 +369,7 @@ body[data-state="gallery"] .gal .hud.g{transition-delay:.3s,.3s}
 .gf:hover,.gf:focus-visible{transform:translateY(-2px)}
 .gf.sel{border-color:var(--lit);box-shadow:0 0 16px rgba(255,157,46,.6)}
 .gf.lit{border-color:var(--lit);box-shadow:0 0 10px rgba(255,157,46,.35);transition-delay:.5s}
-@media (max-width:760px){.h1ghost{font-size:38px}.menu{margin-top:12px}.menu li{font-size:17px;padding-top:.3em}.menu li:not(:last-child)::after{margin-top:.35em;height:1.5px}.gal{padding-top:96px}.gal-in{width:96vw}body[data-state="gallery"] .stage-shadow{top:-100vh;right:0}body[data-state="gallery"] .edge-shadow i{clip-path:polygon(0 0,0 0,0 0)}.gf{border-width:1.5px;border-radius:5px}.gf figcaption{font-size:8px;left:4px;top:3px;padding:2px 5px}}
+@media (max-width:760px){.h1ghost{font-size:38px}.team{top:56px;column-gap:14px}.av{width:44px;height:44px}.mem{gap:10px;font-size:15px}.back{width:38px;height:38px}.back svg{width:18px;height:18px}.menu{margin-top:12px}.menu li{font-size:17px;padding-top:.3em}.menu li:not(:last-child)::after{margin-top:.35em;height:1.5px}.gal{padding-top:96px}.gal-in{width:96vw}body[data-state="gallery"] .stage-shadow{top:-100vh;right:0}body[data-state="gallery"] .edge-shadow i{clip-path:polygon(0 0,0 0,0 0)}.gf{border-width:1.5px;border-radius:5px}.gf figcaption{font-size:8px;left:4px;top:3px;padding:2px 5px}}
 
 @media (max-width:760px){
   .scene{display:flex;flex-direction:column;padding-top:86px}
@@ -389,7 +419,7 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
   .flow,.gal .flow{filter:none}
   .led.on{filter:drop-shadow(0 0 3px #ffd9a0) drop-shadow(0 0 10px var(--lit))}
 }
-@media (prefers-reduced-motion:reduce){*:not(.clan):not(.flow):not(.hud-st):not(.hud-dot):not(.led):not(.led-halo):not(.led-core):not(.h):not(.s):not(.g):not(.stage-shadow):not(.stage-bg):not(.es):not(.copy):not(.gal):not(.gf):not(.sg):not(.sign):not(.menu):not(.actions):not([data-sec]){transition:none!important}}
+@media (prefers-reduced-motion:reduce){*:not(.clan):not(.flow):not(.hud-st):not(.hud-dot):not(.led):not(.led-halo):not(.led-core):not(.h):not(.s):not(.g):not(.stage-shadow):not(.stage-bg):not(.es):not(.copy):not(.gal):not(.gf):not(.sg):not(.sign):not(.menu):not(.actions):not(.team):not(.back):not(.copy):not(h1):not([data-sec]){transition:none!important}}
 </style>
 </head>
 <body data-state="home">
@@ -409,8 +439,16 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
     <ul class="menu" aria-label="فهرست">
       <li style="--i:0">درباره‌ی بازی</li>
       <li style="--i:1">گیت‌ها و مدارها</li>
-      <li style="--i:2">تیم سازنده</li>
+      <li style="--i:2" data-go="team" role="button" tabindex="0">تیم سازنده</li>
       <li style="--i:3">تماس با ما</li>
+    </ul>
+    <button class="back" type="button" aria-label="بازگشت به فهرست"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+    <ul class="team" aria-label="تیم سازنده">
+      <li style="--i:0"><div class="mem"><span class="av"><img src="team/1.jpg" alt="" onerror="this.remove()"></span><a href="https://gamejolt.com/@Romeo-Hosting" target="_blank" rel="noopener noreferrer" title="Game Jolt">علی نویدی | RomeoHosting</a></div></li>
+      <li style="--i:1"><div class="mem"><span class="av"><img src="team/2.jpg" alt="" onerror="this.remove()"></span><a href="https://www.instagram.com/Mobinadvt" target="_blank" rel="noopener noreferrer" title="Instagram">مبینا دواتگر</a></div></li>
+      <li style="--i:2"><div class="mem"><span class="av"><img src="team/3.jpg" alt="" onerror="this.remove()"></span><a href="https://t.me/amirhosseiin_shahbazi" target="_blank" rel="noopener noreferrer" title="Telegram">امیرحسین شهبازی</a></div></li>
+      <li style="--i:3"><div class="mem"><span class="av"><img src="team/4.jpg" alt="" onerror="this.remove()"></span><span>نام عضو چهارم</span></div></li>
+      <li style="--i:4"><div class="mem"><span class="av"><img src="team/5.jpg" alt="" onerror="this.remove()"></span><span>نام عضو پنجم</span></div></li>
     </ul>
     <div class="swap">
       <p class="h r">بازی معمای مدار منطقی: گیت‌ها را وصل کن، سیم‌ها را بکش و ماشین را بیدار کن.</p>
@@ -716,6 +754,7 @@ function setActive(id){
   navLinks.forEach(a => a.dataset.sec === id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'));
   dotEls.forEach((d,i) => d.classList.toggle('on', i === dotIndex[id]));
   moveInk(dotIndex[id]);
+  if(id !== 'menu') closeTeam();
   clearBoot(); lightNode(null);
 }
 /* نگارخانه: پد (سرِ سیم‌ها) خودکار از ابتدا و انتهای هر سیم ساخته می‌شود. با هاور/فوکوس روی هر عکس، سیم‌های متصل به آن
@@ -735,6 +774,15 @@ const clearBoot = () => { bootT.forEach(clearTimeout); bootT = []; };
 gfs.forEach(f => { const k = f.dataset.k;
   ['mouseenter','focus'].forEach(ev => f.addEventListener(ev, () => { clearBoot(); lightNode(k); }));
   ['mouseleave','blur'].forEach(ev => f.addEventListener(ev, () => lightNode(null))); });
+
+/* فهرست ← تیم سازنده: کلیک روی «تیم سازنده» زیرحالت را باز می‌کند، فلش (یا Esc) برمی‌گرداند */
+const openTeam = () => { if(document.body.dataset.state === 'menu') document.body.dataset.sub = 'team'; };
+const closeTeam = () => document.body.removeAttribute('data-sub');
+const teamItem = document.querySelector('.menu li[data-go="team"]');
+teamItem.addEventListener('click', openTeam);
+teamItem.addEventListener('keydown', e => { if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); openTeam(); } });
+document.querySelector('.back').addEventListener('click', closeTeam);
+addEventListener('keydown', e => { if(e.key === 'Escape') closeTeam(); });
 
 /* نسخه‌ی سفیدِ تیتر داخل پنل سبز (کلیپ‌شده با خود پنل)؛ جایش از روی تیتر اصلی خوانده می‌شود */
 const h1el = document.querySelector('.copy h1'), ghost = h1el.cloneNode(true);
