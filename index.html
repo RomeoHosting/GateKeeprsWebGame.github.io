@@ -440,6 +440,11 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
 .corner-logo:hover{transform:translateY(-2px) scale(1.04)}
 .corner-logo:focus-visible{outline:3px solid var(--red);outline-offset:3px}
 @media (max-width:760px){.corner-logo{left:10px;bottom:8px}.corner-logo img{height:38px}}
+.hw{position:absolute;z-index:3;left:clamp(24px,3vw,64px);top:clamp(106px,7.6vw,128px);display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.hw .hint{position:static}
+.btn.next{animation:nextIn .5s cubic-bezier(.2,.7,.2,1) backwards;box-shadow:0 0 0 3px rgba(255,157,46,.55),0 4px 12px rgba(0,0,0,.4)}
+@keyframes nextIn{from{opacity:0;transform:translateY(10px) scale(.9)}}
+@media (max-width:760px){.hw{position:static;flex:0 0 auto;align-items:center;gap:8px}}
 </style>
 </head>
 <body data-state="home">
@@ -475,7 +480,7 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
       <p class="h r">بازی معمای مدار منطقی: گیت‌ها را وصل کن، سیم‌ها را بکش و ماشین را بیدار کن.</p>
       <p class="s r">بازی معمای مدار منطقی: گیت‌ها را وصل کن، سیم‌ها را بکش و ماشین را بیدار کن.</p>
     </div>
-    <div class="chip s r"><span class="ab" aria-hidden="true"><b class="la">A</b><i>&amp;</i><b class="lb">B</b></span> مرحله‌ی ۱: اولین گیت AND</div>
+    <div class="chip s r"><span class="ab" aria-hidden="true"><b class="la">A</b><i id="abOp">&amp;</i><b class="lb">B</b></span> <span id="chipTxt">مرحله‌ی ۱: اولین گیت AND</span></div>
     <div class="actions">
       <a class="btn solid" href="#">دموی بازی</a>
       <button class="btn h r" id="followBtn" type="button">دنبال کردن</button>
@@ -486,11 +491,11 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
     <div class="stage-shadow" aria-hidden="true"><div class="stage-bg"><div class="watermark wm-sub"><div class="track"><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span></div></div><img class="art h l" src="art.png" alt="" onerror="this.remove()"><div class="edge-shadow"><i class="es"></i></div></div></div>
     <div class="panel-s s l">
       <div class="hud">
-        <span class="hud-lvl">LEVEL 01</span>
+        <span class="hud-lvl" id="hudLvl">LEVEL 01</span>
         <span class="hud-st" id="hudSt" role="status"><i class="hud-dot"></i><b>مدار خاموش است</b></span>
       </div>
-      <p class="hint">هر دو کلید را بزن تا LED روشن شود.</p>
-      <svg viewBox="0 0 400 420" role="group" aria-label="مدار گیت AND">
+      <div class="hw"><p class="hint" id="hintTx">هر دو کلید را بزن تا LED روشن شود.</p><button class="btn next" id="nextBtn" type="button" hidden>مرحله‌ی بعد ←</button></div>
+      <svg id="circ" viewBox="0 0 400 420" role="group" aria-label="مدار گیت AND">
       <defs>
         <radialGradient id="waterG"><stop offset="0" stop-color="#bfeaf5" stop-opacity=".05"/><stop offset=".7" stop-color="#9fdcee" stop-opacity=".2"/><stop offset="1" stop-color="#bfeaf5" stop-opacity=".38"/></radialGradient>
         <radialGradient id="ledHalo"><stop offset="0" stop-color="#ff9d2e" stop-opacity=".55"/><stop offset=".45" stop-color="#ff9d2e" stop-opacity=".18"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>
@@ -502,12 +507,13 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
       <path id="fA" class="flow" pathLength="1" d="M80 130H150"/>
       <path id="fB" class="flow" pathLength="1" d="M80 290H150"/>
       <path id="fO" class="flow out" pathLength="1" d="M310 210H340"/>
-      <path class="gate" d="M150 120H220A90 90 0 0 1 220 300H150Z"/>
+      <path id="gb" class="gate" d="M150 120H220A90 90 0 0 1 220 300H150Z"/>
       <path id="gA" class="flow gate" pathLength="1" d="M150 130V120H220A90 90 0 0 1 310 210"/>
       <path id="gB" class="flow gate" pathLength="1" d="M150 290V300H220A90 90 0 0 0 310 210"/>
       <path id="gA2" class="flow gate edge" pathLength="1" d="M150 130V210"/>
       <path id="gB2" class="flow gate edge" pathLength="1" d="M150 290V210"/>
-      <text x="168" y="219">AND</text>
+      <path id="gx" class="wire" d="" style="display:none"/>
+      <text id="gl" x="197" y="219" text-anchor="middle">AND</text>
       <g class="sw" id="sA" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی A">
         <g class="goo" aria-hidden="true">
           <path class="goo-blob" d="M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z">
@@ -576,6 +582,27 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
 <script>
 const $ = id => document.getElementById(id);
 const s = {A:false, B:false};
+/* مرحله‌ها: هر مرحله شکل گیت، شرط روشن شدن LED و متن‌ها را دارد. برای مرحله‌ی جدید یک آبجکت به LV اضافه کن */
+const OR_ = {body:'M150 120H200Q280 120 310 210Q280 300 200 300H150Q190 210 150 120Z', gA:'M152 130L150 120H200Q280 120 310 210', gB:'M152 290L150 300H200Q280 300 310 210', gA2:'M150 120Q170 165 170 210', gB2:'M150 300Q170 255 170 210', wA:'M80 130H152', wB:'M80 290H152'};
+const LV = [
+  {gate:'AND', op:'&', tx:197, txt:'مرحله‌ی ۱: اولین گیت AND', hint:'هر دو کلید را بزن تا LED روشن شود.', f:(a,b)=>a&&b,
+   body:'M150 120H220A90 90 0 0 1 220 300H150Z', gA:'M150 130V120H220A90 90 0 0 1 310 210', gB:'M150 290V300H220A90 90 0 0 0 310 210', gA2:'M150 130V210', gB2:'M150 290V210', wA:'M80 130H150', wB:'M80 290H150', xor:''},
+  {...OR_, gate:'OR', op:'≥1', tx:200, txt:'مرحله‌ی ۲: گیت OR', hint:'در گیت OR هر کدام از کلیدها که روشن باشد کافی است.', f:(a,b)=>a||b, xor:''},
+  {...OR_, gate:'XOR', op:'=1', tx:206, txt:'مرحله‌ی ۳: گیت XOR', hint:'گیت XOR فقط وقتی روشن می‌شود که دقیقاً یکی از کلیدها روشن باشد. هر دو را هم روشن کن و ببین چه می‌شود!', f:(a,b)=>a!==b, xor:'M133 120Q173 210 133 300'}
+];
+let L = 0, solved = false;
+function applyLevel(){
+  const v = LV[L];
+  $('gb').setAttribute('d', v.body);
+  ['gA','gB','gA2','gB2'].forEach(k => $(k).setAttribute('d', v[k]));
+  ['wA','fA'].forEach(k => $(k).setAttribute('d', v.wA)); ['wB','fB'].forEach(k => $(k).setAttribute('d', v.wB));
+  $('gx').setAttribute('d', v.xor); $('gx').style.display = v.xor ? '' : 'none';
+  $('gl').textContent = v.gate; $('gl').setAttribute('x', v.tx);
+  $('circ').setAttribute('aria-label', 'مدار گیت ' + v.gate);
+  $('hudLvl').textContent = 'LEVEL 0' + (L+1); $('chipTxt').textContent = v.txt; $('abOp').textContent = v.op; $('hintTx').textContent = v.hint;
+  solved = false; $('nextBtn').hidden = true; s.A = s.B = false; render();
+}
+
 let hudT = 0;
 /* پارتیکل‌های تشویق: وقتی مرحله حل شد و LED روشن شد، از خود LED چند ده تکه‌ی رنگارنگ با جهت و سرعت و اندازه‌ی تصادفی پخش می‌شوند.
    با کند شدن کم‌کم دور می‌شوند و وسط مسیر محو می‌شوند. روی canvas کشیده می‌شود (بدون وابستگی به ترنزیشن CSS) */
@@ -617,7 +644,7 @@ function fxStep(now){
   if(parts.length) fxRaf = requestAnimationFrame(fxStep); else { fxRaf = 0; fc.clearRect(0,0,fxW,fxH); fx.style.display = 'none'; }
 }
 function render(){
-  const out = s.A && s.B;
+  const out = !!LV[L].f(s.A, s.B);
   [['A','sA','fA'],['B','sB','fB']].forEach(([k,sw,w])=>{
     $(sw).classList.toggle('on', s[k]);
     $(sw).setAttribute('aria-checked', s[k]);
@@ -631,6 +658,7 @@ function render(){
   /* وضعیت ماشین: متن هم‌زمان با روشن شدن LED (بعد از رسیدن مایع) عوض می‌شود */
   clearTimeout(hudT);
   const setHud = () => { $('hudSt').classList.toggle('on', out); $('hudSt').querySelector('b').textContent = out ? 'مدار روشن شد' : 'مدار خاموش است';
+    if(out){ solved = true; const last = L === LV.length-1; $('hintTx').textContent = last ? 'همه‌ی مرحله‌ها تموم شد! 🎉' : 'آفرین! مرحله حل شد 🎉'; $('nextBtn').textContent = last ? 'شروع دوباره' : 'مرحله‌ی بعد ←'; $('nextBtn').hidden = false; }
     if(out && document.body.dataset.state === 'steps') burst(); };
   out ? (hudT = setTimeout(setHud, 1500)) : setHud();
 }
@@ -644,6 +672,7 @@ function render(){
   });
   el.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); flip(); }});
 });
+$('nextBtn').addEventListener('click', () => { L = (L + 1) % LV.length; applyLevel(); });
 render();
 
 /* نشانه‌ی فوکوس سفید دور کلیدهای A و B فقط برای حرکت با کیبورد (Tab) روشن است؛ هر کلیک موس خاموشش می‌کند */
