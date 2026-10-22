@@ -259,6 +259,27 @@ body[data-state="home"] .logo,body[data-state="menu"] .logo{opacity:1;visibility
   --dx:70px;--acc:cubic-bezier(.55,0,.25,1);transition:opacity .25s var(--acc) .15s,transform .3s var(--acc) .15s}
 .tagline::after{content:"";display:inline-block;width:clamp(22px,3vw,56px);height:2px;margin-left:.9em;vertical-align:middle;background:currentColor;border-radius:2px}
 body[data-state="menu"][data-sub="team"] .copy .tagline{opacity:0;visibility:hidden;transform:translateX(var(--dx));transition:opacity .25s ease-in,transform .3s var(--acc),visibility 0s linear .3s}
+.game{position:absolute;top:0;right:0;bottom:0;left:0;z-index:8;overflow:hidden;touch-action:none;background:#0d1415 radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.3px) 0 0/8px 8px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease,visibility 0s linear .35s}
+body[data-state="steps"] .game{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .35s ease .1s,visibility 0s}
+body[data-state="steps"]{--dk:#fff}
+.game canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:pointer}
+.gbub{position:absolute;z-index:2;max-width:min(240px,72vw);padding:8px 13px;border-radius:14px;background:#fff;color:#111;font:700 13px/1.75 var(--f-body);text-align:center;transform:translate(-50%,-100%);opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.gbub.on{opacity:1}
+.gbub::after{content:"";position:absolute;left:50%;bottom:-6px;width:12px;height:12px;background:#fff;border-radius:2px;transform:translateX(-50%) rotate(45deg)}
+.gbub.npc{max-width:min(290px,82vw);text-align:right;padding:10px 14px;border:2px solid #111;pointer-events:none}
+.gbub.npc small{display:block;font:700 11px var(--f-body);margin-bottom:3px}
+.gbub.npc i{display:block;font:700 11px var(--f-body);color:#777;text-align:left;margin-top:5px;font-style:normal}
+.gbar{position:absolute;z-index:2;left:0;right:0;bottom:12px;display:flex;justify-content:center;align-items:center;gap:10px;color:#cfe3e3;font:700 12px var(--f-body);pointer-events:none}
+.gbar button{pointer-events:auto;font:700 12px var(--f-body);color:#eef5f5;background:rgba(255,255,255,.08);border:1.5px solid rgba(238,245,245,.6);border-radius:99px;padding:.4em 1em;cursor:pointer}
+.gbar button:hover{background:#eef5f5;color:#111}
+.gload{position:absolute;z-index:3;top:0;right:0;bottom:0;left:0;display:grid;place-content:center;justify-items:center;gap:12px;background:#0d1415;color:#eef5f5;transition:opacity .5s ease,visibility 0s linear .5s}
+.gload.off{opacity:0;visibility:hidden;pointer-events:none}
+.gload svg{width:min(82vw,440px);height:auto;overflow:visible}
+.gload .tr,.gload .fl{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.gload .tr{stroke:#2a4142}
+.gload .fl{stroke:#3da9ff;filter:drop-shadow(0 0 5px #3da9ff)}
+.gload b{font:400 34px var(--f-display);letter-spacing:.04em;direction:ltr}
+.gload small{font:700 13px var(--f-body);opacity:.75}
 .hint .sol{display:block;margin-top:6px;color:#ffd9a0;font-style:normal}
 .lvbar{display:flex;flex-wrap:wrap;gap:6px;direction:rtl;pointer-events:auto}
 .hint{pointer-events:none;max-width:30ch}
@@ -436,7 +457,7 @@ body[data-state="gallery"] .gal .hud.g{transition-delay:.3s,.3s}
   /* HUD در موبایل: به‌جای position absolute، آیتم اولِ جریان پنل می‌شود و وسط‌چین بالا می‌نشیند */
   .hud{position:static;flex:0 0 auto;justify-content:center;pointer-events:none}
   .hint{position:static;flex:0 0 auto;max-width:none;text-align:center;font-size:12px}
-  .hud{flex-wrap:wrap;row-gap:6px}body:not([data-lv="1"]) .clan{opacity:.28}.panel-s{padding-top:30px}.lvbar{flex-basis:100%;justify-content:center}.lvb{font-size:11px;padding:.4em .85em}
+  .hud{flex-wrap:wrap;row-gap:6px}.panel-s{padding-top:30px}.lvbar{flex-basis:100%;justify-content:center}.lvb{font-size:11px;padding:.4em .85em}
   .stage svg{width:min(86%,360px);flex:1 1 auto;min-height:0;max-height:100%;margin:0}
   .clan{left:auto;right:12px;font-size:21px;bottom:calc(1.9em + 14px)}
   .stage-bg{clip-path:polygon(0 12%,100% 0,100% 100%,0 100%)}
@@ -472,7 +493,7 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
 <body data-state="home">
 <nav aria-label="منوی اصلی">
     <a href="#home" data-sec="home" aria-current="page">خانه</a>
-    <a href="#steps" data-sec="steps">مراحل</a>
+    <a href="#steps" data-sec="steps">بازی</a>
     <a href="#gallery" data-sec="gallery">نگارخانه</a>
     <a href="#menu" data-sec="menu">فهرست</a>
     <div class="navtail"><a href="#" class="follow h l">دنبال‌کنندگان <b id="count">۰</b></a>
@@ -514,69 +535,6 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
   <div class="sign"><img src="signature.png" alt="امضا" onerror="this.parentNode.textContent='ساخته‌شده توسط نام استودیوی شما'"></div>   <!-- اگر signature.png کنار index.html نبود، همان متن قبلی نشان داده می‌شود -->
   <section class="stage" aria-label="صحنه‌ی بازی">
     <div class="stage-shadow" aria-hidden="true"><div class="stage-bg"><div class="watermark wm-sub"><div class="track"><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span><span>GATES</span></div></div><img class="art h l" src="art.png" alt="" onerror="this.remove()"><div class="edge-shadow"><i class="es"></i></div></div></div>
-    <div class="panel-s s l">
-      <div class="hud">
-        <span class="hud-lvl" id="hudLvl">LEVEL 01</span>
-        <span class="hud-st" id="hudSt" role="status"><i class="hud-dot"></i><b>مدار خاموش است</b></span>
-        <div class="lvbar"><button class="lvb" id="lvPrev" type="button" hidden>مرحله‌ی قبل</button><button class="lvb" id="lvHint" type="button">راهنمایی بیشتر</button><button class="lvb pulse" id="lvNext" type="button" hidden>مرحله‌ی بعد</button></div>
-      </div>
-      <div class="hint"><span id="hintTx">هر دو کلید را بزن تا LED روشن شود.</span></div>
-      <svg viewBox="0 0 400 420" role="group" aria-label="مدار گیت AND" data-lv="1">
-      <defs>
-        <radialGradient id="waterG"><stop offset="0" stop-color="#bfeaf5" stop-opacity=".05"/><stop offset=".7" stop-color="#9fdcee" stop-opacity=".2"/><stop offset="1" stop-color="#bfeaf5" stop-opacity=".38"/></radialGradient>
-        <radialGradient id="ledHalo"><stop offset="0" stop-color="#ff9d2e" stop-opacity=".55"/><stop offset=".45" stop-color="#ff9d2e" stop-opacity=".18"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>
-        <radialGradient id="ledCore"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset=".55" stop-color="#ffd27a" stop-opacity=".45"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>
-      </defs>
-      <g class="l1">
-      <path id="wA" class="wire" d="M80 130H150"/>
-      <path id="wB" class="wire" d="M80 290H150"/>
-      <path id="wO" class="wire" d="M310 210H340"/>
-      <path id="fA" class="flow" pathLength="1" d="M80 130H150"/>
-      <path id="fB" class="flow" pathLength="1" d="M80 290H150"/>
-      <path id="fO" class="flow out" pathLength="1" d="M310 210H340"/>
-      <path class="gate" d="M150 120H220A90 90 0 0 1 220 300H150Z"/>
-      <path id="gA" class="flow gate" pathLength="1" d="M150 130V120H220A90 90 0 0 1 310 210"/>
-      <path id="gB" class="flow gate" pathLength="1" d="M150 290V300H220A90 90 0 0 0 310 210"/>
-      <path id="gA2" class="flow gate edge" pathLength="1" d="M150 130V210"/>
-      <path id="gB2" class="flow gate edge" pathLength="1" d="M150 290V210"/>
-      <text x="168" y="219">AND</text>
-      <g class="sw" id="sA" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی A">
-        <g class="goo" aria-hidden="true">
-          <path class="goo-blob" d="M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z">
-            <animate attributeName="d" dur="6.2s" begin="0s" repeatCount="indefinite" calcMode="spline"
-              keyTimes="0;.2;.4;.6;.8;1" keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
-              values="M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z;
-          M84.6 128.5C84.4 137.3 85.5 151.4 79.8 157.1C74.2 162.8 60.6 162.7 50.4 162.6C40.3 162.5 25.4 161.5 18.7 156.2C12.1 151.0 10.7 140.1 10.5 131.1C10.4 122.0 11.6 107.2 18.0 102.0C24.3 96.7 38.2 99.3 48.6 99.7C59.1 100.0 74.8 99.2 80.8 104.0C86.8 108.8 84.7 119.6 84.6 128.5Z;
-          M91.9 128.4C92.1 136.6 86.9 148.7 79.9 154.6C72.9 160.6 59.7 163.8 49.7 164.0C39.7 164.3 25.7 161.5 19.9 156.1C14.1 150.6 15.3 140.5 14.8 131.5C14.3 122.4 11.4 106.9 17.1 101.8C22.7 96.7 38.3 100.3 48.6 100.9C58.8 101.5 71.4 100.7 78.6 105.3C85.8 109.8 91.7 120.2 91.9 128.4Z;
-          M86.1 128.8C86.3 137.7 86.0 151.0 79.8 156.6C73.7 162.2 59.7 161.9 49.3 162.2C38.9 162.6 23.3 164.1 17.4 158.9C11.6 153.7 14.1 140.2 14.1 131.1C14.2 122.1 11.8 109.9 17.7 104.7C23.5 99.6 39.1 100.4 49.2 100.1C59.4 99.9 72.5 98.5 78.6 103.3C84.8 108.1 85.9 119.9 86.1 128.8Z;
-          M84.9 129.2C84.9 138.2 86.2 150.4 80.4 156.5C74.6 162.6 60.6 165.5 49.9 165.5C39.3 165.6 23.2 162.9 16.7 156.8C10.1 150.8 9.7 137.5 10.6 129.2C11.5 120.9 15.5 111.5 22.3 106.8C29.1 102.0 41.7 101.4 51.4 100.6C61.2 99.8 75.0 97.3 80.6 102.1C86.2 106.8 85.0 120.1 84.9 129.2Z;
-          M87.4 131.4C87.8 139.9 86.3 151.3 80.1 156.3C73.8 161.2 60.6 160.9 50.0 161.0C39.5 161.1 22.4 162.0 16.8 157.0C11.2 151.9 15.1 138.8 16.3 130.6C17.5 122.4 18.2 113.4 23.9 107.6C29.6 101.7 41.4 95.9 50.4 95.5C59.3 95.0 71.4 98.8 77.6 104.8C83.8 110.8 87.0 122.8 87.4 131.4Z"/>
-          </path>
-          <rect class="goo-ring " x="20" y="105" width="60" height="50" rx="10"/>
-        </g>
-        <rect x="20" y="105" width="60" height="50"/><text x="42" y="138">A</text></g>
-      <g class="sw" id="sB" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی B">
-        <g class="goo" aria-hidden="true">
-          <path class="goo-blob" d="M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z">
-            <animate attributeName="d" dur="7.1s" begin="-2.4s" repeatCount="indefinite" calcMode="spline"
-              keyTimes="0;.2;.4;.6;.8;1" keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
-              values="M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z;
-          M88.1 290.0C88.0 298.5 84.6 310.1 78.4 315.7C72.1 321.3 60.6 323.3 50.8 323.4C41.0 323.5 26.1 322.0 19.7 316.3C13.3 310.5 13.0 298.0 12.5 288.7C12.0 279.4 10.7 265.6 16.9 260.5C23.0 255.5 39.1 257.6 49.5 258.3C59.9 259.0 73.0 259.5 79.4 264.8C85.8 270.1 88.3 281.6 88.1 290.0Z;
-          M88.7 290.5C88.6 299.7 86.8 309.9 80.4 315.9C74.1 322.0 60.7 326.8 50.7 326.8C40.8 326.9 26.3 322.1 20.7 316.2C15.1 310.3 17.2 299.5 17.2 291.3C17.2 283.1 15.0 272.9 20.7 267.0C26.4 261.0 41.1 256.4 51.2 255.4C61.2 254.4 74.8 255.2 81.1 261.0C87.4 266.8 88.8 281.4 88.7 290.5Z;
-          M89.7 291.4C89.4 299.7 85.5 310.3 78.8 315.2C72.0 320.1 58.7 320.9 49.1 320.7C39.6 320.4 27.3 318.8 21.5 313.5C15.7 308.1 14.5 297.2 14.1 288.5C13.7 279.8 13.1 266.9 19.3 261.5C25.5 256.1 41.0 255.2 51.2 255.9C61.4 256.6 74.1 259.6 80.5 265.5C86.9 271.4 90.0 283.2 89.7 291.4Z;
-          M89.3 290.2C88.9 299.2 86.4 311.3 79.8 316.2C73.1 321.0 59.9 318.7 49.4 319.1C38.9 319.5 23.0 323.5 16.9 318.6C10.7 313.7 12.3 299.5 12.5 290.0C12.7 280.5 11.9 266.6 18.0 261.6C24.2 256.5 38.7 259.4 49.5 259.6C60.3 259.7 76.0 257.5 82.7 262.6C89.3 267.7 89.8 281.3 89.3 290.2Z;
-          M87.4 291.1C86.9 300.0 85.1 309.7 79.1 314.6C73.1 319.6 61.5 320.6 51.5 320.7C41.5 320.8 26.4 320.5 19.2 315.4C12.0 310.3 8.1 298.9 8.4 290.3C8.7 281.8 14.1 269.3 21.0 264.1C27.9 258.9 39.6 259.7 49.8 259.2C60.0 258.8 75.8 256.1 82.1 261.4C88.4 266.8 87.9 282.2 87.4 291.1Z"/>
-          </path>
-          <rect class="goo-ring b" x="20" y="265" width="60" height="50" rx="10"/>
-        </g>
-        <rect x="20" y="265" width="60" height="50"/><text x="42" y="298">B</text></g>
-      <circle id="ledHalo" class="led-halo" cx="362" cy="210" r="72"/>
-      <circle id="led" class="led" cx="362" cy="210" r="24"/>
-      <circle id="ledCore" class="led-core" cx="362" cy="210" r="22"/>
-      </g>
-      <g id="board"></g>
-    </svg>
-    </div>
     <div class="clan-wrap sg l"><button class="clan" id="clan" type="button" aria-pressed="false" aria-label="Gate Keepers">GATE<br>KEEPERS</button></div>
   </section>
   <section class="gal" aria-label="نگارخانه">
@@ -599,6 +557,13 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
         <figure class="gf" data-k="6" tabindex="0" style="--i:5;left:70.00%;top:64.44%;width:22.50%;height:28.89%"><img src="gallery/6.jpg" alt="" onerror="this.remove()"><figcaption>06</figcaption></figure>
     </div>
   </section>
+  <div class="game" id="game" aria-label="مینی‌گیم شهرِ خاموش">
+    <canvas id="gcv"></canvas>
+    <div class="gbub" id="gbub" role="status"></div>
+    <div class="gbub npc" id="gnpc" aria-live="polite"></div>
+    <div class="gbar"><span id="gGoal"></span><button id="gReset" type="button">از اول</button></div>
+    <div class="gload" id="gload"><svg viewBox="0 0 420 80" aria-hidden="true"><path class="tr" d="M10 60H90V20H170V60H250V20H330V60H410"/><path class="fl" id="gfl" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M10 60H90V20H170V60H250V20H330V60H410"/><circle id="gdot" r="8" cx="10" cy="60" fill="#bfe3ff" style="filter:drop-shadow(0 0 8px #3da9ff)"/></svg><b id="gpct">0%</b><small>در حال بارگذاری مدار…</small></div>
+  </div>
 </div>
 
 <!-- چهار «ایستگاه» اسکرول (خانه، مراحل، نگارخانه، فهرست)؛ صحنه ثابت است و فقط وضعیتش عوض می‌شود -->
@@ -609,7 +574,6 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
 
 <script>
 const $ = id => document.getElementById(id);
-const s = {A:false, B:false};
 let hudT = 0;
 /* پارتیکل‌های تشویق: وقتی مرحله حل شد و LED روشن شد، از خود LED چند ده تکه‌ی رنگارنگ با جهت و سرعت و اندازه‌ی تصادفی پخش می‌شوند.
    با کند شدن کم‌کم دور می‌شوند و وسط مسیر محو می‌شوند. روی canvas کشیده می‌شود (بدون وابستگی به ترنزیشن CSS) */
@@ -650,121 +614,278 @@ function fxStep(now){
   }
   if(parts.length) fxRaf = requestAnimationFrame(fxStep); else { fxRaf = 0; fc.clearRect(0,0,fxW,fxH); fx.style.display = 'none'; }
 }
-function render(){
-  const out = s.A && s.B;
-  [['A','sA','fA'],['B','sB','fB']].forEach(([k,sw,w])=>{
-    $(sw).classList.toggle('on', s[k]);
-    $(sw).setAttribute('aria-checked', s[k]);
-    $(w).classList.toggle('on', s[k]);
-    $('g'+k).classList.toggle('on', s[k]);
-    $('g'+k+'2').classList.toggle('on', s[k]);
-  });
-  $('fO').classList.toggle('on', out);
-  $('led').classList.toggle('on', out);
-  $('ledHalo').classList.toggle('on', out); $('ledCore').classList.toggle('on', out);
-  /* وضعیت ماشین: متن هم‌زمان با روشن شدن LED (بعد از رسیدن مایع) عوض می‌شود */
-  clearTimeout(hudT);
-  const setHud = () => { $('hudSt').classList.toggle('on', out); $('hudSt').querySelector('b').textContent = out ? 'مدار روشن شد' : 'مدار خاموش است';
-    if(out){ if(document.body.dataset.state === 'steps') burst(); if(typeof onSolved === 'function') onSolved(1); } };
-  out ? (hudT = setTimeout(setHud, 1500)) : setHud();
-}
-['A','B'].forEach(k=>{
-  const el = $('s'+k), flip = ()=>{ s[k] = !s[k]; render(); };
-  el.addEventListener('click', e => {
-    flip();
-    /* کلیک موس (e.detail > 0): فوکوس برداشته می‌شود تا هیچ خط/حلقه‌ی سفیدی دور کلید نماند.
-       کلیک با کیبورد (Enter) detail=0 دارد، پس فوکوس و نشانه‌اش برای کاربر کیبوردی می‌ماند */
-    if(e.detail) el.blur();
-  });
-  el.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); flip(); }});
-});
-render();
-
-/* ===== مرحله‌ها (۱ تا ۱۱) =====
-   مرحله‌ی ۱ همان مدار AND بالاست. مرحله‌های ۲ تا ۱۱ از روی داده‌ی LV (ورودی‌ها i، گیت‌ها g به ترتیب، خروجی‌ها o، ورودی‌های قفل L) در #board کشیده می‌شوند.
-   h = راهنمای همیشه‌پیدا، s = راهنمای بیشتر (با دکمه). پیشرفت در localStorage می‌ماند */
-const LV = [null,
- {h:'هر دو کلید را بزن تا LED روشن شود.',s:'A و B را هر دو روشن کن.'},
- {h:'گیت OR: روشن بودن یکی از ورودی‌ها کافی است.',s:'فقط A یا فقط B را روشن کن.',i:{A:0,B:0},g:[['x','OR','A','B']],o:['x']},
- {h:'گیت NOT خروجی را برعکس می‌کند. LED الان خاموش است.',s:'کلید A را خاموش کن.',i:{A:1},g:[['x','NOT','A']],o:['x']},
- {h:'NAND یعنی «AND برعکس»؛ فقط وقتی هر دو ورودی روشن‌اند خاموش است.',s:'یکی از کلیدها را خاموش کن.',i:{A:1,B:1},g:[['x','NAND','A','B']],o:['x']},
- {h:'XOR فقط وقتی روشن می‌شود که دو ورودی با هم فرق داشته باشند.',s:'یکی از A یا B روشن و دیگری خاموش.',i:{A:1,B:1},g:[['x','XOR','A','B']],o:['x']},
- {h:'ورودی B از یک NOT رد می‌شود؛ مراقب برعکس شدنش باش.',s:'A روشن و B خاموش.',i:{A:0,B:1},g:[['n','NOT','B'],['x','AND','A','n']],o:['x']},
- {h:'اول OR، بعد AND با C. هر دو شرط باید با هم برقرار باشند.',s:'C روشن و دست‌کم یکی از A یا B روشن.',i:{A:0,B:0,C:0},g:[['p','OR','A','B'],['x','AND','p','C']],o:['x']},
- {h:'هم XOR باید روشن شود هم NOR. از شرط NOR شروع کن.',s:'C و D خاموش؛ A و B مخالف هم.',i:{A:1,B:1,C:1,D:0},g:[['p','XOR','A','B'],['q','NOR','C','D'],['x','AND','p','q']],o:['x']},
- {h:'دو LED داری و هر دو باید هم‌زمان روشن شوند. B در هر دو شرط نقش دارد.',s:'B و C روشن، A خاموش.',i:{A:0,B:0,C:0},g:[['p','XOR','A','B'],['q','AND','B','C']],o:['p','q']},
- {h:'چهار ورودی و سه شرط پشت‌سرهم؛ فقط ۳ حالت جواب دارد. به NAND آخر دقت کن.',s:'A و B مخالف؛ C و D مخالف؛ A و C با هم روشن نباشند.',i:{A:1,B:1,C:1,D:1},g:[['p','XOR','A','B'],['q','XOR','C','D'],['r','AND','p','q'],['w','NAND','A','C'],['x','AND','r','w']],o:['x']},
- {h:'مرحله‌ی آخر: کلید E قفل است و روشن می‌ماند. هر دو LED را روشن کن.',s:'A و C خاموش؛ B و D مخالف هم.',i:{A:1,B:1,C:1,D:0,E:1},L:['E'],g:[['a','NAND','A','B'],['b','XOR','a','C'],['c','XOR','B','D'],['x','AND','b','c'],['y','XOR','A','E']],o:['x','y']}
+/* ===== مینی‌گیم «شهرِ خاموش»: ماجراجویی داستانیِ آزاد با الکترونِ آبی (کلیک/لمس برای رفتن) ===== */
+const gameEl = $('game'), gcv = $('gcv'), gx = gcv.getContext('2d'), gbub = $('gbub'), gnpc = $('gnpc'), gload = $('gload');
+const T = 32, MW = 62, MH = 40, MWp = MW*T, MHp = MH*T, NC = 16, NW = MW*2, NH = MH*2, RAD = 11;
+const D8 = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+const flo = Array.from({length:MH}, () => Array(MW).fill(0));
+[[2,27,13,37],[14,32,17,33],[18,21,31,37],[25,15,26,20],[14,5,33,14],[34,9,37,10],[38,3,49,15],[43,16,44,20],[36,21,51,36],[52,28,54,29],[55,24,60,33]].forEach(([a,b,c,d]) => { for(let y = b; y <= d; y++) for(let x = a; x <= c; x++) flo[y][x] = 1; });
+[[7,30,2,2],[9,35,2,1],[22,25,2,2],[26,29,2,2],[23,33,2,2],[20,28,1,2],[28,23,2,1],[27,34,1,2],[30,31,1,2],[18,8,2,2],[26,7,2,2],[30,11,2,2],[21,12,3,1],[16,10,1,2],[41,7,2,1],[46,11,2,2],[40,12,2,2],[44,5,2,1],[39,24,2,2],[44,26,2,2],[48,30,2,2],[40,31,2,2],[45,33,3,1],[37,27,1,3],[50,23,1,2],[43,29,1,1],[56,26,1,2]].forEach(([x,y,w,h]) => { for(let j = y; j < y+h; j++) for(let i = x; i < x+w; i++) flo[j][i] = 0; });
+const S = {l1:0, l2:0, b1:0, b2:0, c1:0, c2:0, sp:0, or:0, toy:0, candle:0, drink:0, gaveToy:0, gaveCandle:0, gaveDrink:0, askedDrink:0, met:{}, done:false};
+const GATES = [
+  {r:[15,32,1,2], f:() => S.l1 && S.l2}, {r:[25,17,2,1], f:() => S.b1 || S.b2}, {r:[35,9,1,2], f:() => S.sp >= 5},
+  {r:[43,18,2,1], f:() => !!S.c1 !== !!S.c2}, {r:[53,28,1,2], f:() => S.or >= 4}
+].map(g => ({...g, open:false, t:0}));
+const OBJ = [
+  {id:'n1',k:'npc',x:6,y:32}, {id:'n2',k:'npc',x:12,y:31}, {id:'n3',k:'npc',x:30,y:36}, {id:'n5',k:'npc',x:16,y:7}, {id:'n4',k:'npc',x:45,y:8}, {id:'n6',k:'npc',x:46,y:22}, {id:'n7',k:'npc',x:58,y:31},
+  {id:'l1',k:'lamp',x:3,y:28}, {id:'l2',k:'lamp',x:12,y:36}, {id:'b1',k:'bell',x:19,y:22}, {id:'b2',k:'bell',x:30,y:23},
+  {id:'c1',k:'crys',x:40,y:14}, {id:'c2',k:'crys',x:48,y:5}, {id:'tw',k:'tower',x:58,y:26},
+  {id:'s1',k:'item',kind:'sp',x:17,y:13}, {id:'s2',k:'item',kind:'sp',x:32,y:6}, {id:'s3',k:'item',kind:'sp',x:24,y:6}, {id:'s4',k:'item',kind:'sp',x:22,y:13}, {id:'s5',k:'item',kind:'sp',x:33,y:13},
+  {id:'i_toy',k:'item',kind:'toy',x:4,y:36}, {id:'i_drink',k:'item',kind:'drink',x:10,y:28}, {id:'i_candle',k:'item',kind:'candle',x:47,y:14},
+  {id:'o1',k:'item',kind:'or',x:38,y:23}, {id:'o2',k:'item',kind:'or',x:50,y:26}, {id:'o3',k:'item',kind:'or',x:44,y:35}, {id:'o4',k:'item',kind:'or',x:42,y:25}
+].map(o => ({...o, px:o.x*T + T/2, py:o.y*T + T/2, sr:13, t:0, taken:false}));
+const byId = id => OBJ.find(o => o.id === id);
+const SH0 = [[[38,28],[47,28]], [[38,34],[49,34]], [[48,23],[48,28]]];
+let SH = [];
+const NPC = {
+  n1:{name:'عمو مقاومت', col:'#e8a23c', lines:() => !S.met.n1 ? ['سلام جوجه‌برق! بالاخره بیدار شدی!', 'من عمو مقاومتم. دوستتم، نترس!', 'ببین، شهرِ ما تاریکه. همه‌ی چراغ‌ها خاموشن.', 'برجِ نور اون دوره، بالای شهر. اگه روشنش کنی، همه‌جا روشن می‌شه.', 'ولی راه دوره. باید چند تا کار بکنی. من کمکت می‌کنم، قول!', 'اولین کار: توی همین روستا دو تا چراغ هست. یکی بالا-چپ و یکی پایین-راست. روشنشون کن!', 'فقط کافیه روشون کلیک کنی. اون فلشِ آبی هم راه رو نشونت می‌ده.'] : !GATES[0].open ? ['دو تا چراغ، یادته؟ یکی بالا-چپ، یکی پایین-راست.', 'روی چراغ‌ها کلیک کن. فلشِ آبی کمکت می‌کنه!'] : ['آفرین! چراغ‌ها روشن شدن.', 'حالا برو سمت راست، از پل رد شو. نگهبان منتظره.']},
+  n2:{name:'نگهبانِ پل', col:'#c8262c', lines:() => !GATES[0].open ? ['ایست! من نگهبانِ پلم.', 'فقط وقتی راه رو باز می‌کنم که هر دو چراغِ روستا روشن باشن.', 'یکی روشنه؟ نه، باید هر دو روشن باشن. برو، برو!'] : ['وای چراغ‌ها روشنن! آفرین.', 'پرده‌ی نور رفت. برو از پل رد شو و برو توی جنگل.']},
+  n3:{name:'خازنِ کوچولو', col:'#7bd88f', lines:() => !S.met.n3 ? ['هییی! ...تو کی هستی؟ (پشتِ یه سنگ قایم می‌شه)', 'من خازنِ کوچولوم. گم شدم و تاریکه. خیلی ترسیدم.', 'ولی تو یه نورِ آبی داری! وای چه قشنگ!', 'اگه کمکم کنی، منم کمکت می‌کنم. قول!', 'عروسکم رو تو روستا جا گذاشتم. پایین-چپِ روستاست.', 'اگه عروسکم رو بیاری، می‌گم چطوری از درِ بزرگ رد بشی.', 'برو عروسک رو بیار. فلشِ آبی راه رو نشونت می‌ده!'] : !S.toy ? ['عروسکم تو روستاست، پایین-چپ.', 'فلشِ آبی رو دنبال کن. زود بیار!'] : !S.gaveToy ? ['وااای عروسکم! عروسکم رو آوردی!', '(بغلش می‌کنه) دوستت دارم، نورِ آبی!', 'خب، قولمو یادمه: درِ بزرگ اون بالاست. با صدای زنگ بیدار می‌شه.', 'دو تا زنگ هست: یکی بالا-چپِ جنگل، یکی بالا-راستِ جنگل.', 'فقط یکی‌شون رو بزن، کافیه! دَنگ!'] : !GATES[1].open ? ['یکی از زنگ‌ها رو بزن.', 'بالا-چپ یا بالا-راستِ جنگل. فقط یکی!'] : ['درِ بزرگ باز شد! دمت گرم!', 'برو بالا، تو میدونِ نئون.'], after:() => { if(S.toy && S.met.n3) S.gaveToy = 1; }},
+  n5:{name:'نئون', col:'#ff7eb6', lines:() => !S.met.n5 ? ['هوووی! تویی که می‌خوای برج رو روشن کنی؟', 'من نئونم! سریع‌ترین الکترونِ شهر!', 'هه، فکر نکن راحته. باید پنج تا جرقه‌ی طلایی جمع کنی.', 'جرقه‌ها همین‌جا تو میدون پخش شدن و برق می‌زنن.', 'ببینیم کی اول جمع می‌کنه! ...البته من برنده‌ام.', 'فقط روشون راه برو یا کلیک کن. شروع!'] : S.sp < 5 ? ['پنج تا جرقه‌ی طلایی! تا حالا ' + S.sp.toLocaleString('fa-IR') + ' تا برداشتی.', 'فلشِ آبی راهو نشونت می‌ده. زود باش!'] : !S.askedDrink ? ['وااای! هر پنج‌تاشو جمع کردی؟!', '...باشه باشه، قبول. بدک نبودی.', 'راستی، از دویدن تشنه‌ام شد. (نفس‌نفس می‌زنه)', 'عمو مقاومت یه نوشابه‌ی انرژی‌دار داره. تو روستاست، سمتِ راست.', 'برو برام بیار تا یه چیزِ مهم بهت بگم. زود برگرد!'] : !S.drink ? ['نوشابه‌ی انرژی‌دار تو روستاست.', 'سمتِ راست، نزدیکِ عمو مقاومت. بدو!'] : !S.gaveDrink ? ['آهااای! نوشابه! (یه نفس سر می‌کشه) بهتر شدم!', 'خب، قولمو یادمه: دروازه‌ی طلاییِ شرق بازه. بعدش تالارِ بلورهاست.', 'ولی… مراقب باش، باشه؟ برج خیلی بزرگ‌تر از چیزیه که فکر می‌کنی.', 'من همین‌جا می‌مونم. موفق باشی، قهرمان!'] : ['برو تالارِ بلورها! منتظرتن.'], after:() => { if(S.met.n5 && S.sp >= 5 && !S.askedDrink) S.askedDrink = 1; else if(S.askedDrink && S.drink) S.gaveDrink = 1; }},
+  n4:{name:'ستاره‌شناس', col:'#b58cff', lines:() => !S.met.n4 ? ['سلام ای مسافر. ستاره‌ها گفتن میای.', 'اینجا دو بلورِ جادویی هست. یکی پایین-چپ، یکی بالا-راست.', 'درِ پایینی فقط وقتی باز می‌شه که یکی از بلورها بدرخشه. فقط یکی!', 'اگه هر دو بدرخشن، در بسته می‌مونه. اگه هیچ‌کدوم هم نتابن، بسته می‌مونه.', 'روی یه بلور کلیک کن تا روشن بشه. اشتباه شد؟ دوباره کلیک کن تا خاموش شه.'] : !GATES[3].open ? ['یکی روشن، یکی خاموش. همین!', 'اگه هر دو روشنن، یکیشو خاموش کن.'] : ['درخشیدی! حالا برو پایین، جنگلِ سایه‌ها.', 'ولی مواظب باش، باشه؟']},
+  n6:{name:'ننه‌شمع', col:'#ffd36b', lines:() => !S.met.n6 ? ['آخ آخ… یه نورِ کوچولو! بیا جلوتر بچه.', 'اینجا جنگلِ سایه‌هاست. سایه‌ها از نور می‌ترسن، ولی خیلی ناقلان.', 'من ننه‌شمعم. شمعم رو تو تالارِ بلورها جا گذاشتم… بدونِ اون چیزی نمی‌بینم.', 'برو بالا و شمعم رو بیار. رنگش طلاییه.', 'از همون راهِ قبلی برو؛ از دری که بلور بازش کرد.'] : !S.candle ? ['شمعم رو بیار، بچه‌جون. تو تالارِ بلورهاست.', 'فلشِ آبی راه رو نشونت می‌ده.'] : !S.gaveCandle ? ['وااای شمعم! (روشنش می‌کنه) دیدی؟ نوره!', 'حالا بذار بگم: چهار تا گویِ نور اینجا گم شده. بدونِ اون‌ها درِ برج باز نمی‌شه.', 'یکی بالا-چپ، یکی سمتِ راست، یکی پایین و یکی وسط.', 'سایه‌ها چشمِ بنفش دارن. اگه گیرت بندازن، می‌برنت اولِ جنگل. نترس، دوباره برو!', 'از چشم‌های بنفش دور بمون. می‌تونی!'] : S.or < 4 ? ['چهار تا گویِ نور، یادت نره. تا حالا ' + S.or.toLocaleString('fa-IR') + ' تا آوردی.', 'از چشم‌های بنفش دور بمون!'] : ['آفرین بچه‌ی شجاع! درِ شرقی باز شد.', 'برو، برج منتظره.'], after:() => { if(S.met.n6 && S.candle) S.gaveCandle = 1; }},
+  n7:{name:'پادشاهِ خاموشی', col:'#6b4b8f', lines:() => !S.met.n7 ? ['…تویی؟ همون نورِ کوچولو؟', 'من پادشاهِ خاموشیم. خیلی وقته تنهام.', 'وقتی برج خاموش شد، همه رفتن و فقط من موندم.', 'ولی تو اومدی… با نورت. نمی‌ترسی؟', 'می‌دونی؟ اون نور فقط برای ترسوندنِ تاریکی نیست.', 'برای دوست شدن با تاریکی هم هست.', 'برو، برج رو روشن کن. من دیگه ازش نمی‌ترسم.', 'و اگه یه روزی دوباره تاریک شد… بیا پیشم. دوتایی روشنش می‌کنیم.'] : ['برو برج رو روشن کن. من همین‌جا کنارتونم.']}
+};
+const QUEST = [
+  {g:() => 'برو پیشِ عمو مقاومت (فلشِ آبی نشونت می‌ده)', t:() => [byId('n1')], ok:() => S.met.n1},
+  {g:() => 'روی هر دو چراغِ روستا کلیک کن تا روشن بشن', t:() => [byId('l1'), byId('l2')].filter(o => !S[o.id]), ok:() => S.l1 && S.l2},
+  {g:() => 'از پل رد شو، توی جنگل برو. خازنِ کوچولو اون ته گم شده!', t:() => [byId('n3')], ok:() => S.met.n3},
+  {g:() => 'برو توی روستا و عروسکِ خازنِ کوچولو رو بیار', t:() => [byId('i_toy')], ok:() => S.toy},
+  {g:() => 'عروسک رو ببر بده به خازنِ کوچولو', t:() => [byId('n3')], ok:() => S.gaveToy},
+  {g:() => 'یکی از دو زنگِ جنگل رو بزن', t:() => [byId('b1'), byId('b2')], ok:() => S.b1 || S.b2},
+  {g:() => 'برو بالا تو میدون و با نئون حرف بزن', t:() => [byId('n5')], ok:() => S.met.n5},
+  {g:() => 'پنج جرقه‌ی طلایی جمع کن (' + S.sp.toLocaleString('fa-IR') + ' از ۵)', t:() => OBJ.filter(o => o.kind === 'sp' && !o.taken), ok:() => S.sp >= 5},
+  {g:() => 'برگرد پیشِ نئون و بهش بگو جمع کردی', t:() => [byId('n5')], ok:() => S.askedDrink},
+  {g:() => 'برو توی روستا و نوشابه‌ی انرژی‌دار رو بیار', t:() => [byId('i_drink')], ok:() => S.drink},
+  {g:() => 'نوشابه رو ببر بده به نئون', t:() => [byId('n5')], ok:() => S.gaveDrink},
+  {g:() => 'برو تالارِ بلورها پیشِ ستاره‌شناس', t:() => [byId('n4')], ok:() => S.met.n4},
+  {g:() => 'فقط یکی از دو بلور رو روشن کن', t:() => [byId('c1'), byId('c2')], ok:() => !!S.c1 !== !!S.c2},
+  {g:() => 'برو پایین توی جنگلِ سایه‌ها، پیشِ ننه‌شمع', t:() => [byId('n6')], ok:() => S.met.n6},
+  {g:() => 'برو تالارِ بلورها و شمعِ طلاییِ ننه‌شمع رو بیار', t:() => [byId('i_candle')], ok:() => S.candle},
+  {g:() => 'شمع رو ببر بده به ننه‌شمع', t:() => [byId('n6')], ok:() => S.gaveCandle},
+  {g:() => 'چهار گویِ نور جمع کن (' + S.or.toLocaleString('fa-IR') + ' از ۴). از سایه‌ها دور بمون!', t:() => OBJ.filter(o => o.kind === 'or' && !o.taken), ok:() => S.or >= 4},
+  {g:() => 'برو توی اتاقِ برج، پیشِ پادشاهِ خاموشی', t:() => [byId('n7')], ok:() => S.met.n7},
+  {g:() => 'برجِ نور رو روشن کن! روش کلیک کن', t:() => [byId('tw')], ok:() => S.done}
 ];
-const NT = LV.length - 1, board = $('board'), svgEl = board.ownerSVGElement, hintTx = $('hintTx');
-const OPS = {AND:(a,b)=>a&&b, OR:(a,b)=>a||b, NAND:(a,b)=>!(a&&b), NOR:(a,b)=>!(a||b), XOR:(a,b)=>a!==b, NOT:a=>!a};
-let cur = 1, done = 0, lv = LV[1], st = {}, val = {}, lvD = 1, solved = false, hintOpen = false;
-try { done = Math.min(NT, parseInt(localStorage.getItem('gk_done'), 10) || 0); } catch (e) {}
-const calc = (L, inp) => { const v = {}; for(const k in inp) v[k] = !!inp[k]; L.g.forEach(([id,t,a,b]) => v[id] = !!OPS[t](v[a], v[b])); return v; };
-function lvBuild(){
-  const ins = Object.keys(lv.i), dep = {}, pos = {}, n = ins.length;
-  ins.forEach(k => dep[k] = 0);
-  lv.g.forEach(([id,,a,b]) => dep[id] = 1 + Math.max(dep[a], b ? dep[b] : 0));
-  lvD = Math.max(...lv.g.map(g => dep[g[0]]));
-  const gx = d => lvD === 1 ? 150 : 100 + (d-1)*150/(lvD-1);
-  ins.forEach((k,j) => pos[k] = {x:14, y:40 + (j+.5)*290/n, r:64});
-  for(let d = 1; d <= lvD; d++){
-    const row = lv.g.filter(g => dep[g[0]] === d).map(([id,,a,b]) => ({id, y:(pos[a].y + pos[b || a].y)/2})).sort((p,q) => p.y - q.y);
-    for(let j = 1; j < row.length; j++) row[j].y = Math.max(row[j].y, row[j-1].y + 58);
-    const over = row.length ? row[row.length-1].y - 345 : 0; if(over > 0) row.forEach(r => r.y -= over);
-    row.forEach(r => pos[r.id] = {x:gx(d), y:r.y, r:gx(d) + 64});
+let started = false, loading = false, gRaf = 0, gLast = 0, gSpeed = 130, P = {x:0,y:0}, path = [], pending = null, trail = [], ripples = [], hold = false, lastMv = 0, dlg = null, hurt = 0, stage = 0;
+let gW = 0, gH = 0, gDpr = 1, Z = 1, camX = 0, camY = 0, dark = .8, queue = [], qT = 0, world = null, dk = null, dx2 = null;
+const nb = new Uint8Array(NW*NH), ng = new Int8Array(NW*NH).fill(-1);
+const wallAt = (x,y) => { const i = Math.floor(x/T), j = Math.floor(y/T); return i < 0 || j < 0 || i >= MW || j >= MH || !flo[j][i]; };
+const blk = (i,j) => i < 0 || j < 0 || i >= NW || j >= NH || nb[j*NW+i] || (ng[j*NW+i] >= 0 && !GATES[ng[j*NW+i]].open);
+function bakeNav(){
+  const solid = OBJ.filter(o => o.k !== 'item');
+  for(let j = 0; j < NH; j++) for(let i = 0; i < NW; i++){
+    const cx = i*NC + NC/2, cy = j*NC + NC/2; let b = wallAt(cx,cy);
+    for(let a = 0; a < 8 && !b; a++) b = wallAt(cx + Math.cos(a*Math.PI/4)*RAD, cy + Math.sin(a*Math.PI/4)*RAD);
+    if(!b) b = solid.some(o => Math.hypot(cx - o.px, cy - o.py) < o.sr + RAD - 2);
+    nb[j*NW+i] = b ? 1 : 0;
+    GATES.forEach((g,n) => { const [x,y,w,h] = g.r, dx = Math.max(x*T - cx, 0, cx - (x+w)*T), dy = Math.max(y*T - cy, 0, cy - (y+h)*T); if(!nb[j*NW+i] && Math.hypot(dx,dy) < RAD) ng[j*NW+i] = n; });
   }
-  const outs = lv.o.map(id => ({id, y:pos[id].y})).sort((p,q) => p.y - q.y);
-  for(let j = 1; j < outs.length; j++) outs[j].y = Math.max(outs[j].y, outs[j-1].y + 60);
-  const wire = (s, x2, y2, k, dl) => { const x1 = pos[s].r, y1 = pos[s].y, xm = x1 + (x2 - x1)*(.35 + .15*k), d = `M${x1} ${y1}H${xm}V${y2}H${x2}`;
-    return `<path class="wire" d="${d}"/><path class="flow" pathLength="1" data-s="${s}" style="transition-delay:${dl}s" d="${d}"/>`; };
-  let h = '';
-  lv.g.forEach(([id,t,a,b]) => { const p = pos[id], dl = ((dep[id]-1)*.3).toFixed(2);
-    h += wire(a, p.x, p.y + (b ? -11 : 0), 0, dl) + (b ? wire(b, p.x, p.y + 11, 1, dl) : ''); });
-  outs.forEach(o => h += wire(o.id, 356, o.y, 0, (lvD*.3).toFixed(2)));
-  lv.g.forEach(([id,t]) => { const p = pos[id]; h += `<rect class="gate" x="${p.x}" y="${p.y-20}" width="64" height="40" rx="8" style="stroke-width:4"/><text x="${p.x+32}" y="${p.y+5}" text-anchor="middle" style="font-size:15px">${t}</text>`; });
-  ins.forEach(k => { const y = pos[k].y, lk = (lv.L || []).includes(k);
-    h += `<g class="sw${lk ? ' lk' : ''}" data-k="${k}" tabindex="0" role="switch" aria-checked="false" aria-label="ورودی ${k}${lk ? ' (قفل)' : ''}">` +
-      (lk ? '' : `<g class="goo" aria-hidden="true"><rect class="goo-ring" x="14" y="${y-19}" width="50" height="38" rx="10"/></g>`) +
-      `<rect x="14" y="${y-19}" width="50" height="38"/><text x="39" y="${y+8}" text-anchor="middle">${k}</text></g>`; });
-  outs.forEach(o => h += `<circle class="led-halo" data-o="${o.id}" cx="372" cy="${o.y}" r="46"/><circle class="led" data-o="${o.id}" cx="372" cy="${o.y}" r="17"/><circle class="led-core" data-o="${o.id}" cx="372" cy="${o.y}" r="15"/>`);
-  board.innerHTML = h;
 }
-function lvRender(){
-  val = calc(lv, st);
-  board.querySelectorAll('.sw').forEach(g => { const on = !!st[g.dataset.k]; g.classList.toggle('on', on); g.setAttribute('aria-checked', on); });
-  board.querySelectorAll('.flow').forEach(f => f.classList.toggle('on', !!val[f.dataset.s]));
-  board.querySelectorAll('[data-o]').forEach(e => { const on = !!val[e.dataset.o]; e.style.transitionDelay = on ? (lvD*.3 + .35) + 's' : '0s'; e.classList.toggle('on', on); });
-  const n = lv.o.filter(o => val[o]).length, all = n === lv.o.length;
-  clearTimeout(hudT);
-  const upd = () => { const hs = $('hudSt');
-    hs.classList.toggle('on', all);
-    hs.querySelector('b').textContent = all ? (cur === NT ? 'همه‌ی مرحله‌ها تمام شد' : 'مدار روشن شد') : n ? `${n} از ${lv.o.length} LED روشن است` : 'مدار خاموش است';
-    if(all && !solved){ solved = true; onSolved(cur, board.querySelector('.led.on')); } };
-  all ? (hudT = setTimeout(upd, lvD*300 + 700)) : (solved = false, upd());
+const blkAt = (x,y) => blk(Math.floor(x/NC), Math.floor(y/NC));
+function los(a,b){ const d = Math.hypot(b.x-a.x, b.y-a.y), n = Math.ceil(d/5); for(let k = 1; k < n; k++) if(blkAt(a.x + (b.x-a.x)*k/n, a.y + (b.y-a.y)*k/n)) return false; return true; }
+function near(i,j){ if(!blk(i,j)) return [i,j]; for(let r = 1; r <= 12; r++){ let best = null, bd = 1e9; for(let y = j-r; y <= j+r; y++) for(let x = i-r; x <= i+r; x++){ if(blk(x,y)) continue; const d = (x-i)**2 + (y-j)**2; if(d < bd){ bd = d; best = [x,y]; } } if(best) return best; } return [-1,-1]; }
+function findPath(tx,ty){
+  const [si,sj] = near(Math.floor(P.x/NC), Math.floor(P.y/NC)), [ti,tj] = near(Math.floor(tx/NC), Math.floor(ty/NC));
+  if(si < 0 || ti < 0) return null;
+  const goal = tj*NW + ti, prev = new Int32Array(NW*NH).fill(-2), q = [sj*NW + si]; prev[q[0]] = -1;
+  for(let h = 0; h < q.length && q[h] !== goal; h++){
+    const c = q[h], ci = c%NW, cj = (c/NW)|0;
+    for(const [dx,dy] of D8){ const ni = ci+dx, nj = cj+dy, n = nj*NW + ni; if(ni < 0 || nj < 0 || ni >= NW || nj >= NH || prev[n] !== -2 || blk(ni,nj) || (dx && dy && (blk(ci+dx,cj) || blk(ci,cj+dy)))) continue; prev[n] = c; q.push(n); }
+  }
+  if(prev[goal] === -2) return null;
+  const pts = []; for(let c = goal; c !== -1; c = prev[c]) pts.unshift({x:(c%NW)*NC + NC/2, y:((c/NW)|0)*NC + NC/2});
+  const out = []; let a = 0; while(a < pts.length - 1){ let b = pts.length - 1; while(b > a+1 && !los(pts[a], pts[b])) b--; out.push(pts[b]); a = b; }
+  if(!blkAt(tx,ty) && out.length) out[out.length-1] = {x:tx, y:ty};
+  return out;
 }
-function onSolved(n, el){
-  if(n > done){ done = n; try { localStorage.setItem('gk_done', n); } catch (e) {} }
-  if(el && document.body.dataset.state === 'steps') burst(el);
-  navUpdate(); $('lvNext').classList.add('pulse');
+function think(lines){ if(dlg) return; queue.push(...(Array.isArray(lines) ? lines : [lines])); if(!qT) nextThink(); }
+function nextThink(){ const n = queue.shift(); if(!n){ qT = 0; gbub.classList.remove('on'); return; } gbub.textContent = n; gbub.classList.add('on'); qT = setTimeout(nextThink, 1100 + n.length*65); }
+function thinkNow(t){ queue.length = 0; clearTimeout(qT); qT = 0; think(t); }
+function talk(o){ queue.length = 0; clearTimeout(qT); qT = 0; gbub.classList.remove('on'); const n = NPC[o.id]; dlg = {o, n, lines:n.lines(), i:0, pos:0}; if(n.after) n.after(); S.met[o.id] = 1; showLine(); }
+function showLine(){ const d = dlg; d.pos = 0; gnpc.innerHTML = '<small style="color:' + d.n.col + '">' + d.n.name + '</small><span id="gt"></span><i>' + (d.i < d.lines.length - 1 ? '◂ برای ادامه بزن' : '◂ باشه') + '</i>'; gnpc.classList.add('on'); }
+function advance(){ if(!dlg) return; if(dlg.pos < dlg.lines[dlg.i].length){ dlg.pos = 1e9; $('gt').textContent = dlg.lines[dlg.i]; return; } if(++dlg.i >= dlg.lines.length){ dlg = null; gnpc.classList.remove('on'); syncGates(); save(); } else showLine(); }
+function syncGates(){
+  GATES.forEach(g => { const o = !!g.f(); if(o !== g.open){ g.open = o; g.t = performance.now(); thinkNow(o ? 'پرده‌ی نور محو شد! راه باز شد.' : 'اوه… پرده‌ی نور دوباره بسته شد.'); } });
+  updQuest();
 }
-function navUpdate(){ $('lvPrev').hidden = cur <= 1; $('lvNext').hidden = !(cur < NT && cur <= done); if($('lvNext').hidden) $('lvNext').classList.remove('pulse'); }
-function setHint(){ hintTx.innerHTML = lv.h + (hintOpen ? '<span class="sol">' + lv.s + '</span>' : ''); $('lvHint').textContent = hintOpen ? 'پنهان کردن راهنما' : 'راهنمایی بیشتر'; }
-function setLevel(n){
-  cur = n; lv = LV[n]; solved = false; hintOpen = false; clearTimeout(hudT);
-  svgEl.dataset.lv = n; document.body.dataset.lv = n; svgEl.setAttribute('aria-label', n === 1 ? 'مدار گیت AND' : 'مدار مرحله‌ی ' + n);
-  $('hudLvl').textContent = 'LEVEL ' + String(n).padStart(2, '0');
-  if(n === 1){ s.A = s.B = false; render(); }
-  else { st = {}; for(const k in lv.i) st[k] = !!lv.i[k]; lvBuild(); lvRender(); }
-  $('lvNext').classList.remove('pulse'); setHint(); navUpdate();
+function updQuest(){ stage = Math.max(0, QUEST.findIndex(q => !q.ok())); if(S.done) stage = QUEST.length - 1; $('gGoal').textContent = S.done ? 'پایان — شهر دوباره روشن شد. ممنون که بازی کردی!' : 'هدف: ' + QUEST[stage].g(); }
+function interact(o){
+  if(o.k === 'npc') return talk(o);
+  if(o.k === 'item'){ if(o.taken) return; o.taken = true; S[o.kind]++; o.t = performance.now(); thinkNow(o.kind === 'sp' ? 'جرقه‌ی طلایی! (' + S.sp.toLocaleString('fa-IR') + ' از ۵)' : o.kind === 'or' ? 'گویِ نور! (' + S.or.toLocaleString('fa-IR') + ' از ۴)' : o.kind === 'toy' ? 'عروسکِ خازنِ کوچولو! ببرمش بهش.' : o.kind === 'candle' ? 'شمعِ طلاییِ ننه‌شمع! ببرمش بهش.' : 'نوشابه‌ی انرژی‌دار! ببرمش برای نئون.'); syncGates(); return save(); }
+  if(o.k === 'tower'){
+    if(S.done) return;
+    if(!S.met.n7) return thinkNow('اول باید با پادشاهِ خاموشی حرف بزنم. (فلشِ آبی کجا رو نشون می‌ده؟)');
+    S.done = true; updQuest(); save();
+    burst({getBoundingClientRect:() => ({left:(o.px - camX)*Z, top:(o.py - camY)*Z, width:0, height:0})});
+    return thinkNow(['برجِ نور روشن شد!', 'نور همه‌جا رو پر کرد. شهر دوباره جون گرفت.', 'نئون داد می‌زنه: «دمت گرم، قهرمان!»', 'پایان. ممنون که تا آخر همراهم بودی!']);
+  }
+  S[o.id] = S[o.id] ? 0 : 1; o.t = performance.now();
+  thinkNow(o.k === 'lamp' ? (S[o.id] ? 'فانوس روشن شد!' : 'فانوس خاموش شد.') : o.k === 'bell' ? (S[o.id] ? 'دَنگ دَنگ!' : 'زنگ ساکت شد.') : (S[o.id] ? 'بلور درخشید!' : 'بلور خاموش شد.'));
+  syncGates(); save();
 }
-const lvToggle = g => { const k = g.dataset.k; if(!g || (lv.L || []).includes(k)) return; st[k] = !st[k]; lvRender(); };
-board.addEventListener('click', e => { const g = e.target.closest('.sw'); if(g){ lvToggle(g); if(e.detail) g.blur(); } });
-board.addEventListener('keydown', e => { const g = e.target.closest('.sw'); if(g && (e.key === ' ' || e.key === 'Enter')){ e.preventDefault(); lvToggle(g); } });
-$('lvPrev').addEventListener('click', () => setLevel(cur - 1));
-$('lvNext').addEventListener('click', () => setLevel(cur + 1));
-$('lvHint').addEventListener('click', () => { hintOpen = !hintOpen; setHint(); });
-setLevel(Math.min(NT, done + 1));
+function save(){ try{ localStorage.setItem('gk_game', JSON.stringify({S, taken:OBJ.filter(o => o.taken).map(o => o.id), x:P.x, y:P.y})); }catch(e){} }
+function gReset(first){
+  let sv = null; if(first){ try{ sv = JSON.parse(localStorage.getItem('gk_game')); }catch(e){} } else { try{ localStorage.removeItem('gk_game'); }catch(e){} }
+  Object.assign(S, {l1:0, l2:0, b1:0, b2:0, c1:0, c2:0, sp:0, or:0, met:{}, done:false}); OBJ.forEach(o => { o.taken = false; });
+  if(sv && sv.S){ Object.assign(S, sv.S); sv.taken.forEach(id => { byId(id).taken = true; }); }
+  GATES.forEach(g => { g.open = !!g.f(); g.t = -1e6; }); dlg = null; gnpc.classList.remove('on'); path = []; pending = null; trail = []; hurt = 0;
+  P = sv ? {x:sv.x, y:sv.y} : {x:4*T + T/2, y:35*T + T/2}; camX = P.x - 300; camY = P.y - 300; dark = .8;
+  SH = SH0.map(w => ({a:w[0], b:w[1], x:w[0][0]*T + 16, y:w[0][1]*T + 16, to:1}));
+  updQuest();
+  first && !sv ? thinkNow(['…اینجا کجاست؟ همه‌جا تاریکه.', '(هرجا کلیک کنم یا انگشتمو نگه دارم، همون‌جا می‌رم.)', 'اون‌جا یه نفر چراغ دستشه… فلشِ آبی هم همون سمتو نشون می‌ده. برم باهاش حرف بزنم!']) : thinkNow(first ? 'برگشتم! بریم ادامه بدیم.' : 'از اول شروع کردیم!');
+}
+function bakeWorld(){
+  world = document.createElement('canvas'); world.width = MWp; world.height = MHp; const c = world.getContext('2d');
+  c.fillStyle = '#060c0d'; c.fillRect(0,0,MWp,MHp);
+  const nw = (x,y) => y < 0 || x < 0 || y >= MH || x >= MW || !flo[y][x];
+  for(let y = 0; y < MH; y++) for(let x = 0; x < MW; x++){
+    const h = ((x*73856093) ^ (y*19349663)) >>> 0, X = x*T, Y = y*T;
+    if(flo[y][x]){
+      const wood = x >= 36 && x <= 51 && y >= 21, snow = y <= 15 && x >= 14;
+      c.fillStyle = wood ? ((x+y)%2 ? '#17202a' : '#19232e') : snow ? ((x+y)%2 ? '#1a2a33' : '#1c2f38') : ((x+y)%2 ? '#15272a' : '#172b2e'); c.fillRect(X,Y,T,T);
+      c.strokeStyle = wood ? '#222f3d' : '#1f3a3d'; c.lineWidth = 1; c.strokeRect(X+.5,Y+.5,T-1,T-1);
+      if(h%9 === 0){ c.strokeStyle = '#244447'; c.lineWidth = 2; c.beginPath(); c.moveTo(X, Y+T/2); c.lineTo(X+T, Y+T/2); c.stroke(); }
+      if(h%7 === 0){ c.fillStyle = wood ? '#4a3d72' : '#2f5659'; c.beginPath(); c.arc(X + 8 + h%16, Y + 8 + (h>>3)%16, 2, 0, 6.3); c.fill(); }
+    } else {
+      let ed = false; for(let j = -1; j <= 1; j++) for(let i = -1; i <= 1; i++) if(!nw(x+i,y+j)) ed = true;
+      if(ed){ c.fillStyle = '#0d1a1c'; c.fillRect(X,Y,T,T); c.fillStyle = '#122325'; c.fillRect(X+3,Y+3,T-6,T-6); c.fillStyle = '#1a3033'; for(let k = 0; k < 3; k++) c.fillRect(X+6+k*8, Y+T-7, 4, 4); }
+    }
+  }
+}
+function gSize(){
+  gDpr = Math.min(2, devicePixelRatio || 1); gW = gameEl.clientWidth; gH = gameEl.clientHeight;
+  gcv.width = gW*gDpr; gcv.height = gH*gDpr; Z = Math.max(.9, Math.min(1.5, gW/560));
+  if(!dk) dk = document.createElement('canvas'); dk.width = gW*gDpr; dk.height = gH*gDpr; dx2 = dk.getContext('2d');
+}
+const cl = (v,a,b) => Math.max(a, Math.min(b, v));
+function eyes(c,x,y,s,col){ c.fillStyle = col || '#fff'; c.beginPath(); c.arc(x-4*s,y,3*s,0,6.3); c.arc(x+4*s,y,3*s,0,6.3); c.fill(); if(!col){ c.fillStyle = '#111'; c.beginPath(); c.arc(x-4*s,y+.6,1.4*s,0,6.3); c.arc(x+4*s,y+.6,1.4*s,0,6.3); c.fill(); } }
+function drawObj(c,o,now){
+  const x = o.px, y = o.py, on = S[o.id], bob = Math.sin(now/400 + x)*1.5;
+  if(o.k === 'item'){ if(o.taken) return; const p = 1 + Math.sin(now/200 + x)*.18; c.save(); c.shadowBlur = 20; c.shadowColor = o.kind === 'or' ? '#3da9ff' : '#ffd36b'; c.fillStyle = o.kind === 'or' ? '#9fd6ff' : '#ffe28a'; c.translate(x, y + bob*2); c.scale(p,p);
+    if(o.kind === 'toy'){ c.fillStyle = '#c98b5a'; c.beginPath(); c.arc(0,0,9,0,6.3); c.arc(-7,-8,4,0,6.3); c.arc(7,-8,4,0,6.3); c.fill(); c.fillStyle = '#222'; c.fillRect(-4,-2,2,2); c.fillRect(2,-2,2,2); }
+    else if(o.kind === 'candle'){ c.fillStyle = '#fff3c4'; c.fillRect(-4,-4,8,14); c.fillStyle = '#ff9d2e'; c.beginPath(); c.ellipse(0,-9,3,6,0,0,6.3); c.fill(); }
+    else if(o.kind === 'drink'){ c.fillStyle = '#ff5fa2'; c.fillRect(-6,-8,12,18); c.fillStyle = '#7be3ff'; c.fillRect(-6,-8,12,5); c.fillStyle = '#fff'; c.fillRect(2,-16,2,10); }
+    else if(o.kind === 'sp'){ c.beginPath(); for(let i = 0; i < 8; i++){ const r = i%2 ? 4 : 11, a = i*Math.PI/4 - Math.PI/2; c.lineTo(Math.cos(a)*r, Math.sin(a)*r); } c.closePath(); c.fill(); } else { c.beginPath(); c.arc(0,0,9,0,6.3); c.fill(); }
+    c.restore(); return; }
+  c.save(); c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(x, y+13, o.id === 'n7' ? 22 : 13, 5, 0, 0, 6.3); c.fill();
+  if(o.k === 'npc'){
+    const col = NPC[o.id].col, big = o.id === 'n7' ? 1.7 : 1; c.translate(x, y + bob); c.scale(big, big); c.translate(-x, -y);
+    if(o.id === 'n5'){ c.fillStyle = col; [-15,15].forEach(k => { c.beginPath(); c.ellipse(x+k, y+4, 5, 11, k > 0 ? .3 : -.3, 0, 6.3); c.fill(); }); }
+    c.fillStyle = col; c.beginPath(); c.arc(x, y, 13, 0, 6.3); c.fill(); c.fillStyle = 'rgba(0,0,0,.35)';
+    if(o.id === 'n1'){ [-6,0,6].forEach(k => c.fillRect(x+k-1.5, y-12, 3, 8)); }
+    if(o.id === 'n2'){ c.fillStyle = '#7d1218'; c.beginPath(); c.arc(x, y-3, 13, Math.PI, 0); c.fill(); }
+    if(o.id === 'n3'){ c.fillStyle = '#2f7a43'; c.fillRect(x-10, y-14, 20, 4); }
+    if(o.id === 'n4'){ c.fillStyle = '#6b47b8'; c.beginPath(); c.moveTo(x-11, y-6); c.lineTo(x, y-26); c.lineTo(x+11, y-6); c.fill(); }
+    if(o.id === 'n6'){ c.fillStyle = '#fff3c4'; c.fillRect(x-3, y-24, 6, 10); c.fillStyle = '#ff9d2e'; c.beginPath(); c.ellipse(x, y-28, 3, 5, 0, 0, 6.3); c.fill(); }
+    if(o.id === 'n7'){ c.fillStyle = '#2b1b40'; [-1,1].forEach(k => { c.beginPath(); c.moveTo(x+k*6, y-10); c.lineTo(x+k*12, y-24); c.lineTo(x+k*2, y-12); c.fill(); }); }
+    eyes(c, x, y+1, o.id === 'n5' ? 1.25 : 1, o.id === 'n7' ? '#ff4d6d' : null);
+    c.setTransform(c.getTransform()); c.restore(); c.save(); c.font = '700 10px Vazirmatn,Tahoma'; c.fillStyle = '#cfe3e3'; c.textAlign = 'center'; c.fillText(NPC[o.id].name, x, y + (big > 1 ? 40 : 27));
+  } else if(o.k === 'lamp'){
+    c.fillStyle = '#31494b'; c.fillRect(x-2, y-4, 4, 18); c.fillStyle = on ? '#ffb347' : '#3b3a35';
+    if(on){ c.shadowColor = '#ff9d2e'; c.shadowBlur = 24; } c.beginPath(); c.arc(x, y-8, 9, 0, 6.3); c.fill();
+  } else if(o.k === 'bell'){
+    const sw = on ? Math.sin((now - o.t)/90)*Math.exp(-(now - o.t)/900)*.5 : 0; c.translate(x, y-12); c.rotate(sw); c.fillStyle = on ? '#ffd36b' : '#a18a4a';
+    if(on){ c.shadowColor = '#ffd36b'; c.shadowBlur = 14; } c.beginPath(); c.arc(0, 8, 11, Math.PI, 0); c.lineTo(11, 12); c.lineTo(-11, 12); c.fill(); c.fillRect(-1.5, -4, 3, 6);
+  } else if(o.k === 'crys'){
+    c.fillStyle = on ? '#7be3ff' : '#2b4a56'; if(on){ c.shadowColor = '#3da9ff'; c.shadowBlur = 24; }
+    c.beginPath(); c.moveTo(x, y-16); c.lineTo(x+10, y); c.lineTo(x, y+12); c.lineTo(x-10, y); c.closePath(); c.fill();
+  } else {
+    const up = S.done; c.fillStyle = '#26403f'; c.fillRect(x-9, y-30, 18, 44); c.fillStyle = up ? '#ffe28a' : '#3a3a36';
+    if(up){ c.shadowColor = '#ffd36b'; c.shadowBlur = 40; } c.beginPath(); c.arc(x, y-36, 12, 0, 6.3); c.fill();
+  }
+  c.restore();
+}
+function lights(c){
+  const L = (x,y,r) => { const sx = (x - camX)*Z*gDpr, sy = (y - camY)*Z*gDpr, R = r*Z*gDpr, g = c.createRadialGradient(sx,sy,0,sx,sy,R); g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(.55,'rgba(0,0,0,.65)'); g.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.arc(sx,sy,R,0,6.3); c.fill(); };
+  L(P.x, P.y, 170); OBJ.forEach(o => { if(o.k === 'lamp' && S[o.id]) L(o.px, o.py, 150); if(o.k === 'crys' && S[o.id]) L(o.px, o.py, 120); if(o.k === 'bell' && S[o.id]) L(o.px, o.py, 70); if(o.k === 'item' && !o.taken) L(o.px, o.py, 80); if(o.k === 'tower' && S.done) L(o.px, o.py, 450); });
+  SH.forEach(s => L(s.x, s.y, 46));
+}
+function drawGuide(c,now){
+  if(S.done || dlg) return; const ts = QUEST[stage].t(); if(!ts.length) return;
+  let best = ts[0], bd = 1e9; ts.forEach(o => { const d = Math.hypot(o.px - P.x, o.py - P.y); if(d < bd){ bd = d; best = o; } });
+  ts.forEach(o => { const x = (o.px - camX)*Z, y = (o.py - camY)*Z - 40*Z + Math.sin(now/180)*4; if(x > 20 && x < gW-20 && y > 70 && y < gH-30){ c.fillStyle = '#3da9ff'; c.shadowColor = '#3da9ff'; c.shadowBlur = 14; c.beginPath(); c.moveTo(x, y+10); c.lineTo(x-9, y-6); c.lineTo(x+9, y-6); c.fill(); c.shadowBlur = 0; } });
+  const sx = (best.px - camX)*Z, sy = (best.py - camY)*Z;
+  if(sx < 30 || sx > gW-30 || sy < 80 || sy > gH-50){
+    const cx = gW/2, cy = gH/2, a = Math.atan2(sy - cy, sx - cx), k = Math.min((gW/2 - 34)/Math.abs(Math.cos(a) || 1e-6), (gH/2 - 70)/Math.abs(Math.sin(a) || 1e-6)), ax = cx + Math.cos(a)*k, ay = cy + Math.sin(a)*k;
+    c.save(); c.translate(ax, ay); c.rotate(a); c.fillStyle = '#3da9ff'; c.shadowColor = '#3da9ff'; c.shadowBlur = 16; c.beginPath(); c.moveTo(16,0); c.lineTo(-10,-12); c.lineTo(-4,0); c.lineTo(-10,12); c.closePath(); c.fill(); c.restore();
+  }
+}
+function gDraw(now){
+  const c = gx; c.setTransform(1,0,0,1,0,0); c.fillStyle = '#060c0d'; c.fillRect(0,0,gcv.width,gcv.height);
+  c.setTransform(gDpr*Z,0,0,gDpr*Z,-camX*Z*gDpr,-camY*Z*gDpr); c.drawImage(world,0,0);
+  GATES.forEach(g => { const a = g.open ? Math.max(0, 1 - (now - g.t)/700) : 1; if(a <= 0) return; const [x,y,w,h] = g.r.map(v => v*T); c.save(); c.globalAlpha = .55*a; c.fillStyle = '#c8262c'; c.fillRect(x,y,w,h); c.globalAlpha = a; c.strokeStyle = '#ff7b80'; c.lineWidth = 2; c.setLineDash([6,6]); c.lineDashOffset = -now/60; c.strokeRect(x+1,y+1,w-2,h-2); c.restore(); });
+  const items = OBJ.map(o => ({y:o.py, f:() => drawObj(c,o,now)})); items.push({y:P.y, f:() => drawHero(c,now)});
+  SH.forEach(s => items.push({y:s.y, f:() => { c.save(); c.globalAlpha = .9; c.fillStyle = '#1a1030'; c.beginPath(); c.ellipse(s.x, s.y+Math.sin(now/300)*2, 15, 17, 0, 0, 6.3); c.fill(); eyes(c, s.x, s.y-2, 1, '#c36bff'); c.restore(); }}));
+  items.sort((a,b) => a.y - b.y).forEach(i => i.f());
+  ripples = ripples.filter(r => now - r.t < 500); ripples.forEach(r => { const k = (now - r.t)/500; c.strokeStyle = 'rgba(120,200,255,' + (1-k) + ')'; c.lineWidth = 2; c.beginPath(); c.arc(r.x, r.y, 4 + 16*k, 0, 6.3); c.stroke(); });
+  c.setTransform(1,0,0,1,0,0); const d = dx2; d.globalCompositeOperation = 'source-over'; d.clearRect(0,0,dk.width,dk.height); d.fillStyle = 'rgba(3,7,9,' + dark + ')'; d.fillRect(0,0,dk.width,dk.height);
+  d.globalCompositeOperation = 'destination-out'; lights(d); c.drawImage(dk,0,0);
+  c.setTransform(gDpr,0,0,gDpr,0,0); drawGuide(c,now);
+  if(now < hurt){ c.fillStyle = 'rgba(120,40,160,' + (.35*(hurt - now)/1200) + ')'; c.fillRect(0,0,gW,gH); }
+}
+function drawHero(c,now){
+  trail.forEach((p,i) => { c.beginPath(); c.arc(p.x, p.y, 2 + 5*i/trail.length, 0, 6.3); c.fillStyle = 'rgba(61,169,255,' + (.04 + .2*i/trail.length) + ')'; c.fill(); });
+  const r = 8 + Math.sin(now/220)*1.2, g = c.createRadialGradient(P.x,P.y,0,P.x,P.y,28);
+  g.addColorStop(0,'rgba(120,200,255,.95)'); g.addColorStop(.35,'rgba(61,169,255,.45)'); g.addColorStop(1,'rgba(61,169,255,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(P.x,P.y,28,0,6.3); c.fill();
+  c.save(); c.beginPath(); c.arc(P.x,P.y,r,0,6.3); c.fillStyle = '#e8f6ff'; c.shadowColor = '#3da9ff'; c.shadowBlur = 18; c.fill(); c.restore();
+}
+function gFrame(now){
+  gRaf = requestAnimationFrame(gFrame);
+  const dt = Math.min(.05, (now - gLast)/1000); gLast = now;
+  if(path.length && !dlg){
+    const t = path[0], dx = t.x - P.x, dy = t.y - P.y, d = Math.hypot(dx,dy), st = gSpeed*dt;
+    if(d <= st){ P.x = t.x; P.y = t.y; path.shift(); } else { P.x += dx/d*st; P.y += dy/d*st; }
+    trail.push({x:P.x, y:P.y}); if(trail.length > 14) trail.shift();
+  } else if(trail.length) trail.shift();
+  if(!dlg) OBJ.forEach(o => { if(o.k === 'item' && !o.taken && Math.hypot(P.x - o.px, P.y - o.py) < 26) interact(o); });
+  if(pending && Math.hypot(P.x - pending.px, P.y - pending.py) < 44){ const o = pending; pending = null; path = []; interact(o); }
+  else if(pending && !path.length){ const o = pending; pending = null; if(Math.hypot(P.x - o.px, P.y - o.py) < 70) interact(o); }
+  SH.forEach(s => { const g = s.to ? s.b : s.a, tx = g[0]*T + 16, ty = g[1]*T + 16, dx = tx - s.x, dy = ty - s.y, d = Math.hypot(dx,dy), st = 55*dt; if(d <= st) s.to = s.to ? 0 : 1; else { s.x += dx/d*st; s.y += dy/d*st; }
+    if(now > hurt && Math.hypot(P.x - s.x, P.y - s.y) < 22){ hurt = now + 1200; path = []; pending = null; P = {x:43*T + 16, y:22*T + 16}; camX = P.x - gW/Z/2; camY = P.y - gH/Z/2; thinkNow(['ای وای! سایه ترسوندم!', 'اشکالی نداره، برگشتم اولِ جنگل. دوباره می‌رم!']); } });
+  const vw = gW/Z, vh = gH/Z, tx = vw >= MWp ? (MWp - vw)/2 : cl(P.x - vw/2, 0, MWp - vw), ty = vh >= MHp ? (MHp - vh)/2 : cl(P.y - vh/2, 0, MHp - vh);
+  camX += (tx - camX)*Math.min(1, dt*6); camY += (ty - camY)*Math.min(1, dt*6);
+  const dt2 = S.done ? 0 : .8 - .05*GATES.filter(g => g.open).length; dark += (dt2 - dark)*Math.min(1, dt*(S.done ? 1.2 : 2));
+  gDraw(now);
+  if(dlg && dlg.pos < dlg.lines[dlg.i].length){ dlg.pos += dt*34; const g = $('gt'); if(g) g.textContent = dlg.lines[dlg.i].slice(0, Math.floor(dlg.pos)); }
+  const el = dlg ? gnpc : gbub, who = dlg ? dlg.o : P;
+  el.style.left = cl(((who.px ?? who.x) - camX)*Z, 130, gW - 130) + 'px'; el.style.top = Math.max(76, ((who.py ?? who.y) - camY - 34)*Z) + 'px';
+}
+function startLoop(){ if(!gRaf){ gLast = performance.now(); gRaf = requestAnimationFrame(gFrame); } }
+function stopLoop(){ cancelAnimationFrame(gRaf); gRaf = 0; }
+function gLoad(){
+  loading = true; gload.classList.remove('off');
+  const fl = $('gfl'), dot = $('gdot'), pc = $('gpct'), len = fl.getTotalLength(), t0 = performance.now(), D = 2800;
+  const tick = now => {
+    const t = Math.min(1, (now - t0)/D), e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2, p = fl.getPointAtLength(len*e);
+    fl.setAttribute('stroke-dashoffset', 100*(1 - e)); dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); pc.textContent = Math.round(e*100) + '%';
+    if(t < 1) requestAnimationFrame(tick);
+    else setTimeout(() => { gload.classList.add('off'); loading = false; started = true; gReset(true); if(document.body.dataset.state === 'steps') startLoop(); }, 400);
+  };
+  requestAnimationFrame(tick);
+}
+function gameOnState(id){
+  if(id !== 'steps'){ stopLoop(); return; }
+  gSize();
+  if(!started && !loading) gLoad(); else if(started) startLoop();
+}
+function clickAt(e, drag){
+  const r = gcv.getBoundingClientRect(), wx = (e.clientX - r.left)/Z + camX, wy = (e.clientY - r.top)/Z + camY;
+  const o = drag ? null : OBJ.find(o => !o.taken && Math.hypot(wx - o.px, wy - o.py) < 26);
+  const target = o ? {x:o.px, y:o.py} : {x:wx, y:wy};
+  if(!o && GATES.some(g => !g.open && wx > g.r[0]*T && wx < (g.r[0]+g.r[2])*T && wy > g.r[1]*T && wy < (g.r[1]+g.r[3])*T)){ if(!drag) thinkNow('پرده‌ی نور بسته‌ست. باید یه کاری بکنم تا باز بشه. (فلشِ آبی کمکم می‌کنه!)'); return; }
+  const p = findPath(target.x, target.y); if(!p) return;
+  path = p; pending = o || null; if(!drag) ripples.push({x:wx, y:wy, t:performance.now()});
+}
+gcv.addEventListener('pointerdown', e => { if(!started || loading) return; e.preventDefault(); if(dlg){ advance(); return; } hold = true; clickAt(e, false); });
+gcv.addEventListener('pointermove', e => { if(hold && !dlg && started && performance.now() - lastMv > 110){ lastMv = performance.now(); clickAt(e, true); } });
+addEventListener('pointerup', () => { hold = false; });
+gcv.addEventListener('contextmenu', e => e.preventDefault());
+$('gReset').addEventListener('click', () => gReset(false));
+addEventListener('resize', gSize);
+bakeNav(); bakeWorld();
+
 const logoEl = $('logo');
 if(logoEl) logoEl.addEventListener('click', e => { e.preventDefault(); $('home').scrollIntoView({behavior:'smooth'}); });
 const themeBtn = $('themeBtn');
@@ -897,11 +1018,8 @@ updateDotsMask(); addEventListener('resize', updateDotsMask); addEventListener('
 if(window.ResizeObserver) new ResizeObserver(updateDotsMask).observe(stageEl);
 addEventListener('resize', () => { cancelAnimationFrame(inkRaf); setInk(...dotEdges(curDot)); });
 const dotIndex = {home:0, steps:1, gallery:2, menu:3};
-const stageSvg = document.querySelector('.stage svg'), liteMQ = matchMedia('(max-width:760px)');
-/* انیمیشن SMIL لکه‌ها: در گوشی کلاً ثابت؛ در دسکتاپ فقط وقتی «مراحل» دیده می‌شود */
-function applySmil(id){ try{ (liteMQ.matches || id !== 'steps') ? stageSvg.pauseAnimations() : stageSvg.unpauseAnimations(); }catch(e){} }
 function setActive(id){
-  applySmil(id);
+  gameOnState(id);
   document.body.dataset.state = ['menu','steps','gallery'].includes(id) ? id : 'home';
   navLinks.forEach(a => a.dataset.sec === id ? a.setAttribute('aria-current','page') : a.removeAttribute('aria-current'));
   dotEls.forEach((d,i) => d.classList.toggle('on', i === dotIndex[id]));
@@ -1067,7 +1185,7 @@ syncScroll();
   const order = ['home','steps','gallery','menu'];
   let y0 = 0, moved = false, active = false, lockUntil = 0;
   addEventListener('touchstart', e => {
-    active = e.touches.length === 1;
+    active = e.touches.length === 1 && !(e.target.closest && e.target.closest('#game'));
     if(!active) return;
     y0 = e.touches[0].clientY; moved = false;
   }, {passive:true});
