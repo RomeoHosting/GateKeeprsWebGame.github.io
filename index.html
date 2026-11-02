@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
-<script>document.documentElement.classList.add('intro');try{if(localStorage.getItem('gk_theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){};setTimeout(function(){document.documentElement.classList.remove('intro')},2500)</script>
+<script>document.documentElement.classList.add('intro');if(matchMedia('(pointer:coarse)').matches)document.documentElement.style.setProperty('--d','0');try{if(localStorage.getItem('gk_theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){};setTimeout(function(){document.documentElement.classList.remove('intro')},2500)</script>
 <style>
 :root{
   color-scheme:only light;
@@ -489,6 +489,72 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
 }
 @media (prefers-reduced-motion:reduce){*:not(.clan):not(.flow):not(.hud-st):not(.hud-dot):not(.led):not(.led-halo):not(.led-core):not(.h):not(.s):not(.g):not(.stage-shadow):not(.stage-bg):not(.es):not(.copy):not(.gal):not(.gf):not(.sg):not(.sign):not(.menu):not(.actions):not(.team):not(.back):not(.copy):not(h1):not([data-sec]){transition:none!important}}
 </style>
+<style id="fx3d-css">
+/* ================= FX3D: لایه‌ی سه‌بعدیِ سایت (حذفش به ظاهرِ قبلی برمی‌گرداند) ================= */
+html.fx3d .scene{background-image:none}
+html.fx3d .stage-bg{background:radial-gradient(circle at 30% 40%,#2f4546,#1d2a2b 70%)}
+.fx3d-cv{position:absolute;left:0;top:0;pointer-events:none;z-index:0;display:block}
+nav,.navtail,.actions,.clan-wrap,.copy,.gal-in,.menu,.team{perspective:620px}
+/* --- دکمه‌های جعبه‌ای: ضخامتِ واقعی (لبه‌ی بیرون‌زده) + کج‌شدن به سمت اشاره‌گر + فرورفتن موقع فشار --- */
+.k3{--thc:#c4c7ce;--ext:calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 var(--thc),calc(var(--ox,0)*2px) calc(var(--oy,1)*2px) 0 var(--thc),calc(var(--ox,0)*3px) calc(var(--oy,1)*3px) 0 var(--thc),calc(var(--ox,0)*4px) calc(var(--oy,1)*4px) 0 var(--thc),calc(var(--ox,0)*5px) calc(var(--oy,1)*5px) 0 var(--thc);
+  --soft:0 11px 15px rgba(0,0,0,.2),0 3px 5px rgba(0,0,0,.16);
+  box-shadow:var(--ext),var(--soft)!important;will-change:rotate,translate}
+.k3:hover{translate:0 -1px 12px}
+.k3:active{--ext:calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 var(--thc);--soft:0 2px 4px rgba(0,0,0,.25);translate:0 4px 0}
+nav a.k3{transition:background-color .45s ease,color .45s ease,border-color .25s ease,box-shadow .18s ease,transform .25s ease,rotate .12s ease-out,translate .12s ease-out}
+.theme.k3{transition:background-color .35s,color .35s,border-color .35s,transform .25s,box-shadow .18s,rotate .12s ease-out,translate .12s ease-out}
+.btn.k3{transition:rotate .12s ease-out,translate .12s ease-out,box-shadow .18s ease,background-color .2s,color .2s}
+.back.k3{transition:opacity .2s ease-in,visibility 0s linear .2s,background-color .2s,color .2s,box-shadow .18s,rotate .12s ease-out,translate .12s ease-out}
+.btn.k3{--thc:#b3b7bd}.btn.solid.k3{--thc:#454a50}
+nav a[aria-current].k3{--thc:#7d1218}
+nav .follow.k3{--thc:color-mix(in srgb,var(--comp,#fff) 70%,#000)}
+.back.k3{--thc:#6b6f76}
+html[data-theme="dark"] nav a.k3:not([aria-current]),html[data-theme="dark"] .theme.k3{--thc:#05080a}
+html[data-theme="dark"] .btn.k3:not(.solid){--thc:#000}
+html[data-theme="dark"] .btn.solid.k3{--thc:#8a9094}
+/* --- GATE KEEPERS (دکمه‌ی متنی): ضخامتِ زنجیره‌ایِ drop-shadow --- */
+.clan{filter:drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #8a141b) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #7d1218) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #6a0f15) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #5c0d12) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #4d0a0f) drop-shadow(0 0 12px rgba(200,38,44,.3))}
+.clan.on{filter:drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #d29200) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #b87800) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #a56a00) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #8a5600) drop-shadow(calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 #6e4400) drop-shadow(0 0 16px rgba(255,170,0,.65))}
+.clan.k3t{transition:background-size .35s ease,filter .35s ease,rotate .12s ease-out,translate .12s ease-out}
+.clan.k3t:hover{translate:0 -2px 18px}
+.clan.k3t:active{translate:0 3px 0}
+/* --- تیتر GATE KEEPER: حجمِ واقعی با لایه‌های عمق --- */
+.copy h1.t3{position:relative}
+h1.t3,.h1ghost.t3{perspective:1000px;color:transparent!important;text-shadow:none!important}
+.t3in{display:block;position:absolute;top:0;left:0;right:0;pointer-events:none;transform-style:preserve-3d;transform-origin:62% 55%;
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(var(--sc,1));will-change:transform}
+.t3in .L{position:absolute;top:0;right:0;left:0;display:block;text-shadow:none;pointer-events:none;transform:translateZ(calc(var(--z,0)*var(--d,1)));opacity:calc(var(--d,1)*14)}
+.t3in .F{position:relative;display:block}
+/* --- GATESِ پس‌زمینه (مترو): صفحه‌ی مایل در پرسپکتیو؛ هر دو نسخه (روی سفید و داخل پنل سبز) دقیقاً یک تبدیل می‌گیرند تا هم‌راستا بمانند --- */
+html.fx3d .watermark{transform:perspective(1300px) rotateX(calc((20deg + var(--wpy,0)*4deg)*var(--d,1))) rotateY(calc((-8deg + var(--wpx,0)*6deg)*var(--d,1))) scale(calc(1 + .2*var(--d,1)));transform-origin:50% 100%}
+html.fx3d .art{translate:calc(var(--wpx,0)*-12px) calc(var(--wpy,0)*-9px);scale:calc(1 + .07*var(--d,1))}
+/* --- کارت‌های نگارخانه، لوگو، فهرست: کج‌شدن سه‌بعدی --- */
+.k3t{will-change:rotate,translate}
+.gf.k3t,.logo.k3t,.menu li.k3t{transition-property:transform,opacity,border-color,box-shadow,rotate,translate,color;transition-duration:.25s,.25s,.25s,.25s,.14s,.14s,.2s}
+.gf.k3t:hover,.logo.k3t:hover{translate:0 0 22px}
+.menu li.k3t:hover{translate:0 0 14px}
+@media (prefers-reduced-motion:reduce){.k3,.k3t{transition:none!important}.k3:hover,.k3t:hover{translate:none}}
+/* ================= چرخش ۳۶۰ و کج‌شدن کلِ صحنه ================= */
+.scene.spin3d{-webkit-backface-visibility:hidden;backface-visibility:hidden;will-change:transform}
+body.gk-spin .watermark .track{animation-play-state:paused}
+/* ===== سه‌بعدیِ همه‌ی متن‌ها و دکمه‌ها: ضخامتِ متن با --d (۰=فلت)، کج‌شدن و عمق را JS می‌دهد ===== */
+:root{--ex1:#b4b8be;--ex2:#a1a6ad;--ex3:#8e949b;--ex4:#7b8189}
+html[data-theme="dark"]{--ex1:#0a0d0e;--ex2:#050707;--ex3:#000;--ex4:#000}
+.copy .swap p,.copy .chip,.menu li,.team li,.tagline{
+  text-shadow:calc(var(--ox,0)*1px) calc(var(--oy,1)*1px) 0 var(--ex1),calc(var(--ox,0)*2px) calc(var(--oy,1)*2px) 0 var(--ex2),calc(var(--ox,0)*3px) calc(var(--oy,1)*3px) 0 var(--ex3),calc(var(--ox,0)*4px) calc(var(--oy,1)*4px) 0 var(--ex4),calc(var(--ox,0)*4px) calc(var(--oy,1)*4px + 2px) 3px rgba(0,0,0,.28)}
+.swap{perspective:620px}
+html.tx .copy .swap p,html.tx .copy .chip,html.tx .tagline,html.tx .team li,html.tx .menu li,html.tx .gf{will-change:rotate,translate}
+.scene-back{position:fixed;top:0;right:0;bottom:0;left:0;z-index:3;display:none;place-content:center;justify-items:center;gap:.1em;pointer-events:none;overflow:hidden;direction:ltr;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  background:radial-gradient(rgba(0,0,0,.45) 1px,transparent 1.3px) 0 0/6px 6px,radial-gradient(circle at 30% 40%,#2f4546,#1d2a2b 70%)}
+.scene-back.on{display:grid}
+.scene-back b{display:block;font:400 clamp(46px,14vw,180px)/.92 var(--f-display);color:#fff;letter-spacing:-.01em;
+  text-shadow:0 1px 0 #cfd8d8,0 2px 0 #b7c3c3,0 3px 0 #9fadad,0 4px 0 #8a9a9a,0 5px 0 #758686,0 14px 22px rgba(0,0,0,.45)}
+.scene-back b+b{color:#e0343a;text-shadow:0 1px 0 #b82a30,0 2px 0 #a02228,0 3px 0 #881a20,0 4px 0 #701218,0 5px 0 #5c0d12,0 14px 22px rgba(0,0,0,.45)}
+.scene-back small{font:700 clamp(10px,1.1vw,16px)/1 var(--f-body);letter-spacing:.34em;color:rgba(238,245,245,.75);text-transform:uppercase;margin-top:1.4em}
+img{-webkit-user-drag:none;user-drag:none}
+body.gk-drag{-webkit-user-select:none;user-select:none;cursor:grabbing}
+</style>
 </head>
 <body data-state="home">
 <nav aria-label="منوی اصلی">
@@ -565,6 +631,8 @@ body[data-state="gallery"] .watermark .track{animation-play-state:paused}   /* �
     <div class="gload" id="gload"><svg viewBox="0 0 420 80" aria-hidden="true"><path class="tr" d="M10 60H90V20H170V60H250V20H330V60H410"/><path class="fl" id="gfl" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" d="M10 60H90V20H170V60H250V20H330V60H410"/><circle id="gdot" r="8" cx="10" cy="60" fill="#bfe3ff" style="filter:drop-shadow(0 0 8px #3da9ff)"/></svg><b id="gpct">0%</b><small>در حال بارگذاری مدار…</small></div>
   </div>
 </div>
+
+<div class="scene-back" id="sceneBack" aria-hidden="true"><b>GATE</b><b>KEEPER</b><small>circuit logic</small></div>
 
 <!-- چهار «ایستگاه» اسکرول (خانه، مراحل، نگارخانه، فهرست)؛ صحنه ثابت است و فقط وضعیتش عوض می‌شود -->
 <div class="snap" id="home"></div>
@@ -927,6 +995,7 @@ syncScroll();
     if(!active || !moved) return;
     active = false;
     const dy = e.changedTouches[0].clientY - y0;
+    if(window.__gkAxis === 'x' || window.__gkSpin) return;           // کشیدن افقی را اسکریپت چرخش مدیریت می‌کند
     if(Math.abs(dy) < 36 || Date.now() < lockUntil) return;
     const i = order.indexOf(curId), j = Math.max(0, Math.min(order.length-1, i + (dy < 0 ? 1 : -1)));
     if(i < 0 || j === i) return;
@@ -935,6 +1004,217 @@ syncScroll();
   });
   addEventListener('touchcancel', () => { active = false; });
 })();
+</script>
+<script id="fx3d-js">
+/* ================= FX3D: نقطه‌های سه‌بعدی (WebGL)، تیتر حجمی، دکمه‌های کج‌شونده ================= */
+(()=>{'use strict';try{
+const D=document,root=D.documentElement,body=D.body,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const M={x:0,y:0,sx:0,sy:0,t:-1e9,touch:false};
+addEventListener('pointermove',e=>{M.x=e.clientX/innerWidth*2-1;M.y=e.clientY/innerHeight*2-1;M.t=performance.now();M.touch=e.pointerType==='touch'},{passive:true});
+let pulse=0,enterT=performance.now(),flatDrawn=false,lastDark=null;
+new MutationObserver(()=>{pulse=1;const st=body.dataset.state;if(st==='home'||st==='menu')enterT=performance.now()}).observe(body,{attributes:true,attributeFilter:['data-state']});
+/* ---------- ۱) نقطه‌های سه‌بعدی ---------- */
+const VS=`attribute vec2 aP;uniform vec2 uRes,uPtr;uniform float uT,uAmp,uPulse,uDpr,uBase,uA,uB;varying float vH;
+void main(){vec2 p=aP;float h=(sin(p.x*.011+uT*.8)*cos(p.y*.013-uT*.6)+.5*sin((p.x+p.y)*.02+uT*1.3))*uAmp*6.;
+ vec2 d=p-uPtr;float r=length(d);h+=exp(-r*r/(2.*85.*85.))*uAmp*40.;h+=uPulse*sin(r*.035-uT*7.)*exp(-r*.0035)*uAmp*28.;
+ vec3 q=vec3(p,h);float ca=cos(uA),sa=sin(uA);q=vec3(q.x,q.y*ca-q.z*sa,q.y*sa+q.z*ca);float cb=cos(uB),sb=sin(uB);q=vec3(q.x*cb+q.z*sb,q.y,-q.x*sb+q.z*cb);
+ float f=700./(700.-q.z);vec2 s=uRes*.5+q.xy*f;gl_Position=vec4(s.x/uRes.x*2.-1.,1.-s.y/uRes.y*2.,0.,1.);gl_PointSize=uDpr*uBase*f*(1.+h*.012);vH=h;}`;
+const FS=`precision mediump float;uniform vec4 uCol;varying float vH;
+void main(){vec2 c=gl_PointCoord*2.-1.;float r2=dot(c,c);if(r2>1.)discard;vec3 n=vec3(c.x,-c.y,sqrt(1.-r2));float df=max(dot(n,normalize(vec3(-.45,.55,.7))),0.);
+ float sp=pow(max(dot(reflect(vec3(0.,0.,-1.),n),normalize(vec3(-.45,.55,.7))),0.),14.);vec3 col=uCol.rgb*(.55+.6*df)+sp*.45+clamp(vH*.004,0.,.25);
+ float a=uCol.a*smoothstep(1.,.82,sqrt(r2));gl_FragColor=vec4(col*a,a);}`;
+function mkDots(cv,getCol){const gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});if(!gl)return null;
+ const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o},pr=gl.createProgram();
+ gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.bindAttribLocation(pr,0,'aP');gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error('link');gl.useProgram(pr);
+ const U={};['uRes','uPtr','uT','uAmp','uPulse','uDpr','uBase','uA','uB','uCol'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+ const buf=gl.createBuffer();let n=0,W=0,H=0,dpr=1;
+ gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+ function size(w,h){W=w;H=h;dpr=Math.min(matchMedia('(pointer:coarse)').matches?1.5:2,devicePixelRatio||1);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';gl.viewport(0,0,cv.width,cv.height);
+  let S=innerWidth<761?14:12;const mx=Math.max(w,h)*.5;let cols,rows;for(;;){cols=Math.ceil((w+mx)/S);rows=Math.ceil((h+mx)/S);if(cols*rows<=24000)break;S+=2}
+  const a=new Float32Array(cols*rows*2);let k=0;for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){a[k++]=(i-cols/2)*S;a[k++]=(j-rows/2)*S}n=cols*rows;
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,a,gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0)}
+ function draw(t,px,py,ta,tb,amp,pl){gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);const c=getCol();
+  gl.uniform2f(U.uRes,W,H);gl.uniform2f(U.uPtr,px,py);gl.uniform1f(U.uT,t);gl.uniform1f(U.uAmp,amp);gl.uniform1f(U.uPulse,pl);gl.uniform1f(U.uDpr,dpr);gl.uniform1f(U.uBase,3.6);gl.uniform1f(U.uA,ta);gl.uniform1f(U.uB,tb);gl.uniform4f(U.uCol,c[0],c[1],c[2],c[3]);gl.drawArrays(gl.POINTS,0,n)}
+ return{size,draw}}
+const scene=D.getElementById('scene'),isDark=()=>root.dataset.theme==='dark';
+const mkCv=parent=>{const c=D.createElement('canvas');c.className='fx3d-cv';c.setAttribute('aria-hidden','true');parent.insertBefore(c,parent.firstChild);return c};
+let dotsA=null,dotsB=null;
+try{if(scene){dotsA=mkDots(mkCv(scene),()=>isDark()?[.95,.95,.98,.28]:[.5,.52,.58,.8]);const sb=D.querySelector('.stage-bg');if(sb)dotsB=mkDots(mkCv(sb),()=>[.02,.05,.05,.55]);if(dotsA)root.classList.add('fx3d')}}catch(e){console.warn('fx3d dots',e)}
+function resize(){flatDrawn=false;if(!scene)return;const w=scene.clientWidth||innerWidth,h=scene.clientHeight||innerHeight;if(dotsA)dotsA.size(w,h);if(dotsB)dotsB.size(w,h)}
+resize();addEventListener('resize',()=>{clearTimeout(resize.t);resize.t=setTimeout(resize,120)});if(window.ResizeObserver&&scene)new ResizeObserver(()=>{clearTimeout(resize.t);resize.t=setTimeout(resize,120)}).observe(scene);
+/* ---------- ۲) تیتر GATE KEEPER با لایه‌های عمق ---------- */
+/* متنِ اصلیِ تیتر (و نودِ متنیِ اولش که placeTag/placeGhost اندازه می‌گیرند) دست‌نخورده می‌ماند؛ فقط شفاف می‌شود و لایه‌های سه‌بعدی رویش می‌نشینند */
+const t3s=[];
+function build3d(el,front,c0,c1){if(!el||!CSS.supports('transform-style','preserve-3d'))return;const html=el.innerHTML,N=14,STEP=.017;
+ let s='<span class="t3in" aria-hidden="true">';for(let i=N;i>=1;i--){const k=i/N,c=c0.map((v,j)=>Math.round(lerp(v,c1[j],k)));s+=`<span class="L" style="--z:${(-i*STEP).toFixed(3)}em;color:rgb(${c})">${html}</span>`}
+ s+=`<span class="F" style="color:${front}">${html}</span></span>`;el.classList.add('t3');el.insertAdjacentHTML('beforeend',s);t3s.push(el.lastElementChild)}
+const h1=D.querySelector('.copy h1');build3d(h1,getComputedStyle(h1).color==='rgba(0, 0, 0, 0)'?'#000':'var(--ink)',[216,52,58],[64,8,12]);
+const gh=D.querySelector('.h1ghost');if(gh)build3d(gh,'#fff',[190,210,212],[16,26,28]);
+/* ---------- ۳) کج‌شدنِ دکمه‌ها و کارت‌ها به سمت اشاره‌گر ---------- */
+const canRot=CSS.supports('rotate','1 0 0 10deg');
+function tilt(el,max){if(!canRot)return;const set=(dx,dy)=>{const ax=-dy*max,ay=dx*max,a=Math.hypot(ax,ay);el.style.rotate=a<.15?'none':`${ax.toFixed(2)} ${ay.toFixed(2)} 0 ${a.toFixed(2)}deg`};
+ const mv=e=>{el._ph=1;const r=el.getBoundingClientRect();set(clamp((e.clientX-r.left)/r.width*2-1,-1,1),clamp((e.clientY-r.top)/r.height*2-1,-1,1))};
+ el.addEventListener('pointermove',mv,{passive:true});el.addEventListener('pointerdown',mv,{passive:true});el.addEventListener('pointerleave',()=>{el._ph=0;el._k=null;el.style.rotate='none'});el.addEventListener('pointerup',()=>{el._ph=0;el._k=null;if(el.matches(':not(:hover)'))el.style.rotate='none'});el.addEventListener('pointercancel',()=>{el._ph=0;el._k=null;el.style.rotate='none'})}
+D.querySelectorAll('nav a,.theme,.btn,.back').forEach(e=>{e.classList.add('k3');tilt(e,16)});
+const clan=D.getElementById('clan');if(clan){clan.classList.add('k3t');tilt(clan,14)}
+D.querySelectorAll('.gf,.logo,.menu li').forEach(e=>{e.classList.add('k3t');tilt(e,e.matches('.gf')?9:e.matches('.logo')?18:6)});
+/* ---------- ۴) ژیروسکوپ (گوشی) و ماوس (کامپیوتر) ----------
+   T = بردار کج‌شدن، هر دو محور بین ‌−۱ و ۱. گوشی: از ژیروسکوپ (نسبت به حالتی که گوشی را گرفته‌ای).
+   کامپیوتر: از ماوس، ولی برعکس. اگر جهتِ گوشی یا ماوس را برعکس می‌خواهی فقط علامت این دو ثابت را عوض کن. */
+const GYRO_SIGN=1,MOUSE_SIGN=-1;
+const ELEMENT_TILT=true;        // کج‌شدن و عمقِ تک‌تکِ دکمه‌ها و متن‌ها (اگر روی گوشی ضعیف سنگین بود false کن)
+const PHONE_SCENE_TILT=false;   // کج‌شدنِ کلِ صحنه روی گوشی سنگین است؛ فقط اگر گوشی قوی است true کن (چرخش ۳۶۰ و بقیه‌ی افکت‌ها همیشه هست)
+const coarse=matchMedia('(pointer:coarse)').matches;
+let mouseMode=!coarse;   // گوشی‌نمای DevTools یا تبلت با ماوس: به‌محض دیدن ماوس (و نبودنِ ژیروسکوپ) حالت ماوس فعال می‌شود
+addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!G.has)mouseMode=true},{passive:true});
+const G={on:false,has:false,asked:false,b:0,g:0,w:1,bb:0,bg:0,ang:0};
+const screenAngle=()=>{if(screen.orientation&&typeof screen.orientation.angle==='number')return screen.orientation.angle;const o=window.orientation;return typeof o==='number'?(o<0?o+360:o):0};
+function onOri(e){
+  if(e.beta==null||e.gamma==null)return;
+  const a=screenAngle();
+  if(!G.has||a!==G.ang){G.bb=e.beta;G.bg=e.gamma;G.ang=a}   // اولین نمونه = وضعیتِ «استراحت»؛ همه‌چیز فلت
+  G.b=e.beta;G.g=e.gamma;G.has=true;
+  G.w=clamp(Math.abs(Math.cos(e.beta*Math.PI/180))*2.5,0,1);  // نزدیک ۹۰° (گوشی کاملاً عمودی) گاما نامطمئن است
+}
+if(coarse&&'DeviceOrientationEvent' in window){
+  const attach=()=>{if(G.on)return;G.on=true;addEventListener('deviceorientation',onOri,true)},DO=window.DeviceOrientationEvent;
+  if(typeof DO.requestPermission==='function'){   // iOS: اجازه فقط با لمسِ کاربر
+    const ask=()=>{if(G.asked)return;G.asked=true;try{DO.requestPermission().then(r=>{if(r==='granted')attach()}).catch(()=>{G.asked=false})}catch(e){G.asked=false}};
+    addEventListener('touchend',ask,{passive:true});addEventListener('click',ask);
+  }else attach();
+}
+
+/* ---------- ۵) چرخش ۳۶۰° با کشیدن به بغل ---------- */
+const order=['home','steps','gallery','menu'],backEl=D.getElementById('sceneBack');
+const idx=()=>Math.max(0,order.indexOf(body.dataset.state));
+const eio=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+const sp={mode:'idle',a:0,aT:0,from:0,to:0,t0:0,dur:1250,p:0,swapped:false,id:null};
+function jump(id){const el=D.getElementById(id);if(!el)return;const pv=root.style.scrollBehavior;root.style.scrollBehavior='auto';el.scrollIntoView();root.style.scrollBehavior=pv}
+/* dir=+1: صفحه‌ی بعد (در منوی راست‌به‌چپ، سمت چپ)، dir=−1: قبلی. آخر و اول صفحه فقط فنر می‌خورد */
+function startSpin(dir){
+  const j=idx()+dir;
+  if(j<0||j>=order.length){sp.mode='back';return false}
+  sp.mode='spin';sp.from=sp.a;sp.to=dir*360;sp.t0=performance.now();sp.p=0;sp.swapped=false;sp.id=order[j];window.__gkSpin=true;return true;
+}
+const g={on:false,x0:0,y0:0,t0:0,axis:null};
+const interactive=t=>!!(t&&t.closest&&t.closest('a,button,input,textarea,select,.gf,[data-go],.sw,.clan,.theme'));
+addEventListener('dragstart',e=>{if(e.target&&e.target.tagName==='IMG')e.preventDefault()});   // وگرنه کشیدن روی آرت، «کشیدن تصویر» می‌شود و ماوس قطع می‌شود
+addEventListener('mousedown',e=>{if(e.button===0&&!interactive(e.target)&&!(e.target.closest&&e.target.closest('#game')))e.preventDefault()});   // متن حین کشیدن انتخاب نشود
+/* داخل صفحه‌ی بازی لمس مالِ خودِ بازی است؛ فقط کشیدن از ۳۶ پیکسلِ لبه‌ی چپ/راست سوایپ حساب می‌شود */
+const inGame=(t,x)=>!!(t&&t.closest&&t.closest('#game'))&&x>36&&x<innerWidth-36;
+function gStart(x,y,t){if(sp.mode==='spin'||inGame(t,x))return;g.on=true;g.x0=x;g.y0=y;g.t0=performance.now();g.axis=null;window.__gkAxis=null}
+function gMove(x,y){
+  if(!g.on)return;const dx=x-g.x0,dy=y-g.y0;
+  if(!g.axis){if(Math.hypot(dx,dy)<10)return;g.axis=Math.abs(dx)>Math.abs(dy)*1.15?'x':'y';window.__gkAxis=g.axis;if(g.axis==='x'){sp.mode='drag';body.classList.add('gk-drag')}}
+  if(g.axis==='x'){const j=idx()+(dx>0?1:-1),ok=j>=0&&j<order.length;sp.aT=clamp(dx*.16,-30,30)*(ok?1:.3)}
+}
+function gEnd(x){
+  if(!g.on)return;g.on=false;body.classList.remove('gk-drag');
+  if(g.axis!=='x'){window.__gkAxis=null;return}
+  const dx=x-g.x0,fast=Math.abs(dx)>=40&&performance.now()-g.t0<260;
+  if(Math.abs(dx)>=70||fast)startSpin(dx>0?1:-1);else sp.mode='back';
+  setTimeout(()=>{window.__gkAxis=null},0);
+}
+addEventListener('touchstart',e=>{if(e.touches.length===1)gStart(e.touches[0].clientX,e.touches[0].clientY,e.target);else{g.on=false;if(sp.mode==='drag')sp.mode='back'}},{passive:true});
+addEventListener('touchmove',e=>{if(e.touches.length===1)gMove(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+addEventListener('touchend',e=>{const t=e.changedTouches[0];if(t)gEnd(t.clientX)},{passive:true});
+addEventListener('touchcancel',()=>{if(g.on&&g.axis==='x')sp.mode='back';g.on=false;body.classList.remove('gk-drag');window.__gkAxis=null});
+/* ماوس: کشیدنِ افقی روی جاهای خالی صفحه */
+addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0&&!interactive(e.target))gStart(e.clientX,e.clientY,e.target)});
+addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&(e.buttons&1))gMove(e.clientX,e.clientY)},{passive:true});
+addEventListener('pointerup',e=>{if(e.pointerType==='mouse')gEnd(e.clientX)});
+addEventListener('selectstart',e=>{if(g.on&&g.axis==='x')e.preventDefault()});
+addEventListener('blur',()=>{if(g.on&&g.axis==='x')sp.mode='back';g.on=false;body.classList.remove('gk-drag')});
+/* تاچ‌پد / چرخ افقی */
+let wLock=0;
+addEventListener('wheel',e=>{
+  if(sp.mode!=='idle')return;const ax=Math.abs(e.deltaX),ay=Math.abs(e.deltaY),now=performance.now();
+  if(ax<28||ax<ay*1.6||now<wLock)return;wLock=now+1700;startSpin(e.deltaX<0?1:-1);
+},{passive:true});
+
+/* ---------- حلقه‌ی اصلی ---------- */
+const T={x:0,y:0},S={dep:0,gate:0};
+let rx=0,ry=0,last=performance.now(),lq=-1,lwx=9,lwy=9,tfOn=false,backOn=false,fr=0,lrx=1e9,lry=1e9,lsc=1e9,spinCls=false;
+const TXE=[],txSeen=new Set();   // [عنصر، عمق بر حسب px در حالت کاملاً سه‌بعدی]
+[['nav a',22],['.navtail .follow',24],['.theme',24],['.tagline',14],['.copy .swap p',18],['.copy .chip',20],['.actions .btn',34],['.menu li',20],['.team li',20],['.back',30],['#clan',40],['.gf',24]]
+ .forEach(([s,z])=>D.querySelectorAll(s).forEach(el=>{if(txSeen.has(el)){TXE.find(o=>o.el===el).z=z;return}txSeen.add(el);TXE.push({el,z,nx:0,ny:0,noex:el.matches('.gf')})}));
+let txOn=false,posT=0,lastSt=null;
+const wmEls=[...D.querySelectorAll('.watermark,.art')],dz=v=>{const a=Math.abs(v);return a<.1?0:Math.sign(v)*(a-.1)/.9};   // dz: لرزشِ دست (زیر ~۱.۶°) را نادیده می‌گیرد تا در حالت استراحت هیچ کاری انجام نشود
+function loop(now){requestAnimationFrame(loop);if(D.hidden)return;
+ const dt=Math.min(.1,(now-last)/1000);last=now;const t=now/1000,st=body.dataset.state,game=st==='steps';
+ /* ماوس: همان نرم‌کردنِ قبلی (برای هاله‌ی زیر اشاره‌گر) */
+ const gyroMode=!mouseMode;fr++;const heavy=!gyroMode||(fr&1)===0;   // روی گوشی کارهای سنگین (WebGL و استایل‌ها) با ۳۰ فریم در ثانیه
+ const idle=gyroMode||now-M.t>3500,tx0=idle?Math.sin(t*.45)*.45:M.x,ty0=idle?Math.cos(t*.37)*.3:M.y;
+ M.sx=lerp(M.sx,tx0,Math.min(1,dt*3));M.sy=lerp(M.sy,ty0,Math.min(1,dt*3));
+ /* کج‌شدن T و «میزان سه‌بعدی‌بودن» (۰ = فلت … ۱ = کامل) */
+ let dT=0;
+ if(gyroMode){
+  let tx=0,ty=0;
+  if(G.on&&G.has&&!game){
+   const k=Math.min(1,dt/6);G.bb+=(G.b-G.bb)*k;G.bg+=(G.g-G.bg)*k;        // «حالتِ گرفتن» آرام‌آرام به‌عنوان وضعیت استراحت پذیرفته می‌شود
+   const db=clamp(G.b-G.bb,-45,45),dg=clamp((G.g-G.bg)*G.w,-45,45),a=G.ang;let sx,sy;
+   if(a===90){sx=db;sy=-dg}else if(a===270){sx=-db;sy=dg}else if(a===180){sx=-dg;sy=-db}else{sx=dg;sy=db}
+   tx=dz(clamp(sx/16,-1,1))*GYRO_SIGN;ty=dz(clamp(sy/16,-1,1))*GYRO_SIGN;dT=clamp(Math.hypot(tx,ty)*1.8,0,1);
+  }
+  T.x=lerp(T.x,tx,Math.min(1,dt*9));T.y=lerp(T.y,ty,Math.min(1,dt*9));
+ }else{T.x=M.sx*MOUSE_SIGN;T.y=M.sy*MOUSE_SIGN;dT=1}
+ S.dep=lerp(S.dep,dT,Math.min(1,dt*(dT>S.dep?7:3.5)));
+ S.gate=lerp(S.gate,game?0:1,Math.min(1,dt*8));          // صفحه‌ی بازی همیشه فلت (کنترل دقیق)
+ /* چرخش ۳۶۰ */
+ if(sp.mode==='spin'){
+  const p=clamp((now-sp.t0)/sp.dur,0,1);sp.p=p;sp.a=lerp(sp.from,sp.to,eio(p));
+  if(!sp.swapped&&Math.abs(sp.a)>=180){sp.swapped=true;jump(sp.id)}  // وسطِ چرخش، پشتِ صفحه رو به ماست؛ همین‌جا صفحه عوض می‌شود
+  if(p>=1){sp.a=0;sp.mode='idle';window.__gkSpin=false}
+ }else if(sp.mode==='drag'){sp.a=lerp(sp.a,sp.aT,Math.min(1,dt*20))}
+ else if(sp.mode==='back'){sp.a=lerp(sp.a,0,Math.min(1,dt*12));if(Math.abs(sp.a)<.05){sp.a=0;sp.mode='idle'}}
+ /* در حینِ چرخش همه‌چیز موقتاً کاملاً سه‌بعدی می‌شود (نقطه‌ها موج می‌زنند، تیتر و دکمه‌ها ضخامت می‌گیرند) */
+ const sb=gyroMode?0:(sp.mode==='spin'?Math.sin(Math.PI*sp.p):Math.min(1,Math.abs(sp.a)/50)*.7),dE=Math.max(S.dep,sb);   // روی گوشی حین چرخش چیزی تغییر نمی‌کند تا روان باشد
+ if(heavy){const q=Math.round(dE*10)/10;if(q!==lq){lq=q;root.style.setProperty('--d',q.toFixed(1))}
+  if(Math.abs(T.x-lwx)>.006||Math.abs(T.y-lwy)>.006){lwx=T.x;lwy=T.y;const a=T.x.toFixed(2),b=T.y.toFixed(2);for(const el of wmEls){el.style.setProperty('--wpx',a);el.style.setProperty('--wpy',b)}}}   // فقط روی مصرف‌کننده‌ها، نه کل صفحه
+ if(heavy&&ELEMENT_TILT){
+  if(st!==lastSt){lastSt=st;posT=0}
+  if(sp.mode==='idle'&&now>posT){posT=now+700;const hw=innerWidth/2,hh=innerHeight/2;for(const o of TXE){const rc=o.el.getBoundingClientRect();o.nx=clamp((hw-(rc.left+rc.width/2))/hw,-1,1);o.ny=clamp((hh-(rc.top+rc.height/2))/hh,-1,1)}}   // جای هر عنصر نسبت به مرکز صفحه
+  const gt=S.gate,ax=-T.y*9*gt,ay=T.x*9*gt,an=Math.hypot(ax,ay),rs=an<.2?'none':`${ax.toFixed(1)} ${ay.toFixed(1)} 0 ${an.toFixed(1)}deg`,zq=Math.round(dE*10)/10,k=rs+'|'+zq,on=dE>.01;
+  if(on!==txOn){txOn=on;root.classList.toggle('tx',on)}
+  for(const o of TXE){const el=o.el;
+   /* جهتِ ضخامت: دیواره‌ی پشتِ هر عنصر به سمتِ مرکزِ صفحه (پرسپکتیو) و خلافِ جهتِ چرخش دیده می‌شود */
+   if(!o.noex){const q=v=>(Math.round(v*4)/4).toFixed(2),ox=q(dE*(1.1*o.nx-1.3*T.x*gt)),oy=q(dE*(1.1*o.ny-1.3*T.y*gt+.25)),ek=ox+'|'+oy;
+    if(el._e!==ek){el._e=ek;el.style.setProperty('--ox',ox);el.style.setProperty('--oy',oy)}}
+   if(el._ph){if(el.style.translate)el.style.translate='';continue}      // اشاره‌گر روی دکمه است: کج‌شدنِ محلی و بالا آمدنِ هاور از CSS
+   if(el._k===k)continue;el._k=k;el.style.rotate=rs;el.style.translate=zq>0?`0 0 ${(o.z*zq).toFixed(1)}px`:''}
+ }
+ pulse=Math.max(0,pulse-dt*.9);const enter=clamp((now-enterT)/1250,0,1);
+ if(t3s.length){const e=enter,eo=e<1?1+2.2*Math.pow(e-1,3)+1.2*Math.pow(e-1,2):1,sc=lerp(.35,1,eo)*(1+(reduce?0:.032*Math.sin(t*1.7)*dE)),
+  rY=lerp(-60,0,eo)+T.x*13,rX=lerp(22,0,eo)-T.y*9+(reduce?0:Math.sin(t*.9)*1.6*dE);
+  rx=lerp(rx,rX,Math.min(1,dt*10));ry=lerp(ry,rY,Math.min(1,dt*10));
+  if(heavy&&(Math.abs(rx-lrx)>.03||Math.abs(ry-lry)>.03||Math.abs(sc-lsc)>.002)){lrx=rx;lry=ry;lsc=sc;const tt=`rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(4)})`;for(const t3 of t3s)t3.style.transform=tt}}   // یک نوشتنِ مستقیم، نه سه متغیرِ ارث‌بر برای ۱۵ لایه
+ /* نقطه‌های WebGL: فلت = بدون موج و بدون شیب؛ با کج‌کردن شیب می‌گیرند و تپه‌ی زیرشان بالا می‌آید (گوشی: تپه با کج‌شدن جابه‌جا می‌شود) */
+ if(heavy&&st!=='steps'&&(dotsA||dotsB)){
+  const w=scene.clientWidth,h=scene.clientHeight,amp=reduce?0:dE,dk=isDark(),bx=gyroMode?T.x:M.sx,by=gyroMode?T.y:M.sy,
+   flat=dE<.004&&pulse<.01&&sp.mode==='idle';
+  if(!flat||!flatDrawn||dk!==lastDark){
+   const ptx=bx*w*.5,pty=by*h*.5,ta=dE*.34-T.y*(gyroMode?.16:.07),tb=T.x*(gyroMode?.2:.08);
+   if(dotsA)dotsA.draw(t,ptx,pty,ta,tb,amp,pulse);if(dotsB)dotsB.draw(t,ptx,pty,ta,tb,amp,pulse);
+   flatDrawn=flat;lastDark=dk}
+ }
+ /* کلِ صحنه مثل کارتی در دست: کج‌شدن + کمی آمدن به سمت ما + چرخش ۳۶۰ */
+ const W=innerWidth,H=innerHeight,gt=S.gate*((!gyroMode||PHONE_SCENE_TILT)?1:0),maxD=gyroMode?6.5:3.2,
+  sRy=T.x*maxD*gt,sRx=-T.y*maxD*gt,lift=34*dE*gt*(gyroMode?1:.6),a=sp.a,
+  spinning=sp.mode!=='idle'||Math.abs(a)>.05;
+ if(spinning!==spinCls){spinCls=spinning;scene.classList.toggle('spin3d',spinning);body.classList.toggle('gk-spin',spinning)}
+ if(spinning||Math.abs(sRx)+Math.abs(sRy)>.03||lift>.3){
+  const P=Math.round(Math.max(W,H)*1.5),mr=Math.max(Math.abs(sRx),Math.abs(sRy))*Math.PI/180,
+   cv=1+1.35*(Math.max(W,H)/2)*Math.sin(mr)/P+lift/P,ck=1+(cv-1)*clamp(1-Math.abs(a)/20,0,1),
+   s=ck*(1-.14*Math.sin(Math.PI*clamp(Math.abs(a)/360,0,1))),
+   tf=(extra)=>`perspective(${P}px) translateZ(${lift.toFixed(1)}px) rotateX(${sRx.toFixed(2)}deg) rotateY(${(sRy+a+extra).toFixed(2)}deg) scale(${s.toFixed(4)})`;
+  scene.style.transform=tf(0);tfOn=true;
+  const showB=Math.abs(a)>80&&Math.abs(a)<280;
+  if(showB!==backOn){backOn=showB;backEl.classList.toggle('on',showB)}
+  if(showB)backEl.style.transform=tf(180);
+ }else if(tfOn){scene.style.transform='';tfOn=false;if(backOn){backOn=false;backEl.classList.remove('on')}}
+}
+requestAnimationFrame(loop);
+}catch(e){console.warn('fx3d disabled',e)}})();
 </script>
 </body>
 </html>
